@@ -122,11 +122,9 @@ function live() {
     prevLife[i][j] = life[i][j];
 
   let nb = 0;
-  console.log('1');
   for (let a = 0; a < width; a++) {
     for (let b = 0; b < height; b++) {
       nb = neighbors(a, b);
-      console.log(nb);
       life[a][b] = nb != 2 ? nb == 3 : life[a][b];
     }
   }
@@ -135,6 +133,7 @@ function live() {
   if(!mouseDown)
     setTimeout(live, 100);
 }
+
 
 canvas.addEventListener('mousedown', e => {
   ctx.fillStyle = getColors();
@@ -146,6 +145,31 @@ canvas.addEventListener('mousedown', e => {
   life[x][y] = true;
 });
 
+function getOffsetPosition(evt, parent){
+  var position = {
+      x: (evt.targetTouches) ? evt.targetTouches[0].pageX : evt.clientX,
+      y: (evt.targetTouches) ? evt.targetTouches[0].pageY : evt.clientY
+  };
+
+  while(parent.offsetParent){
+      position.x -= parent.offsetLeft - parent.scrollLeft;
+      position.y -= parent.offsetTop - parent.scrollTop;
+
+      parent = parent.offsetParent;
+  }
+
+  return position;
+}
+
+canvas.addEventListener('touchstart', e => {
+  ctx.fillStyle = getColors();
+  let offset = getOffsetPosition(e, canvas);
+  mouseDown = true;
+  let x = Math.trunc(offset.x / PSIZE);
+  let y = Math.trunc(offset.y / PSIZE);
+  ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+  life[x][y] = true;
+});
 
 canvas.addEventListener('mousemove', e => {
   if (mouseDown) {
@@ -155,8 +179,23 @@ canvas.addEventListener('mousemove', e => {
     life[x][y] = true;
   }
 });
+
+canvas.addEventListener('touchmove', e => {
+  if (mouseDown) {
+    let offset = getOffsetPosition(e, canvas);
+
+    let x = Math.trunc(offset.x / PSIZE);
+    let y = Math.trunc(offset.y / PSIZE);
+    ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+    life[x][y] = true;
+  }
+});
 canvas.addEventListener('mouseup', e => {
   mouseDown = false;
   live();  
 });
 
+canvas.addEventListener('touchend', e => {
+  mouseDown = false;
+  live();  
+});
