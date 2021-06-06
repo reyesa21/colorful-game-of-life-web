@@ -1,29 +1,55 @@
+
 var canvas = document.getElementById('draw');
-
-
+var life = Array(w);
+var prevLife = Array(w);
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+var mouseDown = false;
 
 var w = canvas.width;
 var h = canvas.height;
-var life = [w, h];
-var prevLife = [w, h];
-life.fill(false);
-
-var mouseDown = false;
-
 var ctx = canvas.getContext('2d');
+
+window.onload = () => {
+  for (var i = 0; i < w; i++) {
+    life[i] = Array(h).fill(false);
+    prevLife[i] = Array(h).fill(false);
+  }
+
+  for (let i = 0; i < 100; i++) {
+    let randomI = getRandomInt(canvas.width);
+    let randomJ = getRandomInt(canvas.height);
+    life[randomI][randomJ] = true;
+  }
+
+  refreshLife();
+};
+
+function refreshLife() {
+  for (let i = 0; i < canvas.width; i++)
+    for (let j = 0; j < canvas.height; j++) {
+      if (life[i][j] != prevLife[i][j])
+        updateState(i, j);
+    }
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
 
 function updateState(i, j) {
   if (i < w && j < h) {
-    if (life[i, j] == true)
-      ctx.fillStyle = "#FF0000";
-    else
-      ctx.fillStyle = "#000FFF";
+    if (life[i][j] == true){
+      ctx.fillStyle = "#000";
+    }
+    else{
+      ctx.fillStyle = "#FFF";
+      console.log('no');
+    }
 
     ctx.fillRect(Math.trunc(i / 10) * 10, Math.trunc(j / 10) * 10, 10, 10);
-
+    
   }
 }
 
@@ -56,29 +82,24 @@ function neighbors(i, j) {
   return nb;
 }
 
-function live(){
+function live() {
   let nb = 0;
 
 
-  for(i = 0; i < w; i++)
-    for(j = 0; j < h; j++)
-      prevLife[i,j] = life[i,j];
+  for (i = 0; i < w; i++)
+    for (j = 0; j < h; j++)
+      prevLife[i, j] = life[i, j];
 
   for (let a = 0; a < w; a++) {
     for (let b = 0; b < h; b++) {
       nb = neighbors(a, b);
-      if (nb != 2){
+      if (nb != 2) {
         life[a, b] = (nb == 3);
-        
+
       }
     }
   }
-  for (let a = 0; a < w; a++)
-  for (let b = 0; b < h; b++)
-      if (prevLife[a, b] != life[a, b]){
-        updateState(a, b);
-        console.log('updating state...\n');
-      }
+  refreshLife();
 }
 
 canvas.addEventListener('mousedown', e => {
@@ -88,12 +109,12 @@ canvas.addEventListener('mousedown', e => {
 });
 
 canvas.addEventListener('mousemove', e => {
-  if(mouseDown){
+  if (mouseDown) {
     ctx.fillRect(Math.trunc(e.offsetX / 10) * 10, Math.trunc(e.offsetY / 10) * 10, 10, 10);
     life[Math.trunc(e.offsetX / 10) * 10, Math.trunc(e.offsetY / 10)];
   }
 });
 canvas.addEventListener('mouseup', e => {
   mouseDown = false;
-  live();
+  refreshLife();
 });
