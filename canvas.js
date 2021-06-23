@@ -2,8 +2,8 @@
 'use strict';
 
 var canvas = document.getElementById('draw');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = window.innerWidth*2;
+canvas.height = window.innerHeight*2;
 const SCALE = 2;
 const PSIZE = 10 * SCALE;
 
@@ -47,14 +47,13 @@ function getRandomInt(max) {
 
 function updateState(i, j) {
   if (i < width && j < height) {
-    if (life[i][j] == true){
+    if (life[i][j] == true)
       ctx.fillStyle = getColors();
-    }
+
     else
       ctx.fillStyle = "#FFF";
 
     ctx.fillRect(i * PSIZE, j * PSIZE, PSIZE, PSIZE);
-    
   }
 }
 
@@ -67,9 +66,9 @@ function getColors(){
       case 1:
           return "#B00B69";
       case 2:
-          return "#FAFAFA";
+          return "#F0F0FA";
       case 3:
-          return "#FEEEEE";
+          return "#FAAAEE";
       case 4:
           return "#FEDCAA";
       case 5:
@@ -89,38 +88,34 @@ function getColors(){
 
 function neighbors(i, j) {
   let nb = 0;
-  if (j - 1 >= 0) {
-    if (prevLife[i][j - 1] == true) {
+  
+  if (j - 1 >= 0 && prevLife[i][j-1] == true) {
       nb++;
-    }
   }
-  if (j + 1 < height) {
-    if (prevLife[i][j + 1] == true) {
+  if (j + 1 < height && prevLife[i][j+1] == true) {
       nb++;
+  }
+
+  for (let k = 0; k < 3; k++) {
+    if (i - 1 >= 0 && j - 1 + k >= 0 && i - 1 < width && j - 1 + k < height && prevLife[i - 1][j - 1 + k] == true) {
+        nb++;
     }
   }
+
   for (let k = 0; k < 3; k++) {
-    if (i - 1 >= 0 && j - 1 + k >= 0 && i - 1 < width && j - 1 + k < height) {
-      if (prevLife[i - 1][j - 1 + k] == true) {
+    if (i + 1 >= 0 && j - 1 + k >= 0 && i + 1 < width && j - 1 + k < height && prevLife[i + 1][j - 1 + k] == true) {
         nb++;
-      }
-    }
-  }
-  for (let k = 0; k < 3; k++) {
-    if (i + 1 >= 0 && j - 1 + k >= 0 && i + 1 < width && j - 1 + k < height) {
-      if (prevLife[i + 1][j - 1 + k] == true) {
-        nb++;
-      }
     }
   }
   return nb;
 }
 
 function live() {
-  for (let i = 0; i < width; i++)
-  for (let j = 0; j < height; j++)
-    prevLife[i][j] = life[i][j];
-
+  for (let i = 0; i < width; i++) {
+    for (let j = 0; j < height; j++) {
+      prevLife[i][j] = life[i][j];
+    }
+  }
   let nb = 0;
   for (let a = 0; a < width; a++) {
     for (let b = 0; b < height; b++) {
@@ -129,20 +124,25 @@ function live() {
     }
   }
 
-  refreshLife();
-  if(!mouseDown)
-    setTimeout(live, 100);
+    refreshLife();
+    if (!mouseDown) {
+      setTimeout(live, 100);
+    }
+    else
+      ctx.fillStyle = getColors();
+      
 }
 
 
 canvas.addEventListener('mousedown', e => {
-  ctx.fillStyle = getColors();
 
-  mouseDown = true;
-  let x = Math.trunc(e.offsetX / PSIZE);
-  let y = Math.trunc(e.offsetY / PSIZE);
-  ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
-  life[x][y] = true;
+  if (e.button == 0) {
+    mouseDown = true;
+    let x = Math.trunc(e.offsetX / PSIZE);
+    let y = Math.trunc(e.offsetY / PSIZE);
+    ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+    life[x][y] = true;
+  }
 });
 
 function getOffsetPosition(evt, parent){
@@ -191,11 +191,26 @@ canvas.addEventListener('touchmove', e => {
   }
 });
 canvas.addEventListener('mouseup', e => {
-  mouseDown = false;
-  live();  
+  if (mouseDown) {
+    mouseDown = false;
+    live();
+  }
 });
 
 canvas.addEventListener('touchend', e => {
-  mouseDown = false;
-  live();  
+  if (mouseDown) {
+    mouseDown = false;
+    live();
+  } 
 });
+
+if (canvas.addEventListener) {
+  canvas.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  }, false);
+} else {
+  canvas.attachEvent('oncontextmenu', function() {
+    alert("You've tried to open context menu");
+    window.event.returnValue = false;
+  });
+}
