@@ -2,8 +2,8 @@
 'use strict';
 
 var canvas = document.getElementById('draw');
-canvas.width = window.innerWidth*2;
-canvas.height = window.innerHeight*2;
+canvas.width = window.innerWidth/2;
+canvas.height = window.innerHeight/2;
 const SCALE = 2;
 const PSIZE = 10 * SCALE;
 
@@ -51,7 +51,7 @@ function updateState(i, j) {
       ctx.fillStyle = getColors();
 
     else
-      ctx.fillStyle = "#FFF";
+      ctx.fillStyle = "#fff";
 
     ctx.fillRect(i * PSIZE, j * PSIZE, PSIZE, PSIZE);
   }
@@ -167,16 +167,20 @@ canvas.addEventListener('touchstart', e => {
   mouseDown = true;
   let x = Math.trunc(offset.x / PSIZE);
   let y = Math.trunc(offset.y / PSIZE);
-  ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
-  life[x][y] = true;
+  if(life[x][y] != undefined){
+    ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+    life[x][y] = true;
+  }
 });
 
 canvas.addEventListener('mousemove', e => {
   if (mouseDown) {
     let x = Math.trunc(e.offsetX / PSIZE);
     let y = Math.trunc(e.offsetY / PSIZE);
-    ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
-    life[x][y] = true;
+    if(life[x][y] != undefined){
+      ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+      life[x][y] = true;
+    } 
   }
 });
 
