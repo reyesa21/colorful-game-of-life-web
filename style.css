@@ -8,11 +8,35 @@ html, body {
 #draw {
     background: white;
     color: white;
-    border-radius: 1em;
-    padding: 1em;
+    border-radius: 20px;
+    padding: 20px;
     position: absolute;
     top: 50%;
     left: 50%;
     margin-right: -50%;
     transform: translate(-90%, -50%);
+    cursor:crosshair;
  }
+
+ #clear {
+    background: white;
+    color: black;
+    border-radius: 20px;
+    padding: 1em;
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform:translate(0%, -420%);
+    margin-left: 10vmin;
+    user-select: none;
+}
+
+ #clear:hover{
+     opacity: 50%;
+     cursor: pointer;
+ }
+
+
+ #clear:active {
+    transform:translate(0%, -416%);
+  }

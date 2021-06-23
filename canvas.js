@@ -3,7 +3,13 @@
 
 var canvas = document.getElementById('draw');
 canvas.width = window.innerWidth/2;
-canvas.height = window.innerHeight/2;
+canvas.height = window.innerHeight/1.5;
+
+var clear = document.getElementById('clear');
+clear.width = canvas.width;
+clear.height = canvas.height;
+var clearing = false;
+
 const SCALE = 2;
 const PSIZE = 10 * SCALE;
 
@@ -36,7 +42,7 @@ window.onload = () => {
 function refreshLife() {
   for (let i = 0; i < width; i++)
     for (let j = 0; j < height; j++) {
-      if (life[i][j] != prevLife[i][j])
+      if (life[i][j] != prevLife[i][j] || clearing)
         updateState(i, j);
     }
 }
@@ -124,7 +130,8 @@ function live() {
     }
   }
 
-    refreshLife();
+    if(!clearing)
+      refreshLife();
     if (!mouseDown) {
       setTimeout(live, 100);
     }
@@ -140,8 +147,10 @@ canvas.addEventListener('mousedown', e => {
     mouseDown = true;
     let x = Math.trunc(e.offsetX / PSIZE);
     let y = Math.trunc(e.offsetY / PSIZE);
-    ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
-    life[x][y] = true;
+    if(life[x][y] != undefined){
+      ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+      life[x][y] = true;
+    }
   }
 });
 
@@ -162,7 +171,6 @@ function getOffsetPosition(evt, parent){
 }
 
 canvas.addEventListener('touchstart', e => {
-  ctx.fillStyle = getColors();
   let offset = getOffsetPosition(e, canvas);
   mouseDown = true;
   let x = Math.trunc(offset.x / PSIZE);
@@ -218,3 +226,16 @@ if (canvas.addEventListener) {
     window.event.returnValue = false;
   });
 }
+
+
+
+clear.addEventListener('mousedown', e => {
+  clearing = true;
+  for (var i = 0; i < width; i++) {
+    for(let j = 0; j < height; j++)
+      life[i][j] = false;
+  }
+  refreshLife();
+
+  clearing = false;
+});
