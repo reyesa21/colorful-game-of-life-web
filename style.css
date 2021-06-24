@@ -4,32 +4,55 @@ html, body {
     background-color: wheat;
 }
 
- #clear {
+#key {
     font-family: 'Londrina Solid', cursive;
     font-size: larger;
+    background: black;
+    color: black;
+    border-radius: 20px;
+
+    position: fixed;
+    top: 5%;
+    left: 90%;
+    width: 100px;
+    height: 160px;
+    user-select: none;
+}
+ 
+.button {
+    font-family: 'Londrina Solid', cursive;
+    font-size: larger;
+    text-align: center;
     background: bisque;
     color: black;
     box-shadow: 0px 0px 0px 1px black inset;
     border-radius: 20px;
-    padding: 1em;
+    padding: 20px;
+    width: 50px;
     position: fixed;
-    top: 5%;
-    left: 80%;
-    margin-left: 10vmin;
     user-select: none;
+    margin-left: 5px;
+    margin-top: 5px;
+
+}
+ #clear {
+
 }
 
+#resize {
+    margin-top: 80px;
+}
 @media only screen and (max-width: 600px) {
-    #clear {
+
+    #key {
         left: 50%;
     }
 }
- #clear:hover{
+ .button:hover{
      opacity: 80%;
      cursor: pointer;
  }
 
-
- #clear:active {
+ .button:active {
     transform:translate(0%, 2%);
   }

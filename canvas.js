@@ -1,9 +1,11 @@
 
 'use strict';
 
+var sizeMultiplier = 1.0;
 var canvas = document.getElementById('draw');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = window.innerWidth * sizeMultiplier;
+canvas.height = window.innerHeight * sizeMultiplier;
+document.body.style.overflow = 'hidden';
 
 var clear = document.getElementById('clear');
 
@@ -226,7 +228,42 @@ if (canvas.addEventListener) {
   });
 }
 
+var resize = document.getElementById('resize');
+var resizeCounter = 0;
+resize.addEventListener('mousedown', e=> {
+  switch(resizeCounter){
+    case -1:
+      resizeCounter++;
+      resize.innerHTML="1.0x";
+      sizeMultiplier = 1.0;
+      document.body.style.overflow = 'hidden';
+      break;
+    case 0:
+      resizeCounter++;
+      resize.innerHTML="1.2x";
+      sizeMultiplier = 1.2;
+      document.body.style.overflow = "visible";
 
+      break;
+    case 1:
+      resizeCounter++;
+      resize.innerHTML="1.5x";
+      sizeMultiplier = 1.5;
+      break;
+    case 2:
+      resizeCounter++;
+      resize.innerHTML="1.8x";
+      sizeMultiplier = 1.8;
+      break;
+    case 3:
+      resizeCounter = -1;
+      resize.innerHTML="2.0x";
+      sizeMultiplier = 2.0;
+      break;
+  }
+
+  resizer();
+})
 
 clear.addEventListener('mousedown', e => {
   clearing = true;
@@ -239,10 +276,12 @@ clear.addEventListener('mousedown', e => {
   clearing = false;
 });
 
-window.onresize = function()
+window.onresize = resizer;
+
+function resizer()
 {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth * sizeMultiplier;
+  canvas.height = window.innerHeight * sizeMultiplier;
   width = Math.trunc(canvas.width / PSIZE);
   height = Math.trunc(canvas.height / PSIZE);
   life = Array(width);
