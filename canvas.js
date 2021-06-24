@@ -2,12 +2,11 @@
 'use strict';
 
 var canvas = document.getElementById('draw');
-canvas.width = window.innerWidth/2;
-canvas.height = window.innerHeight/1.5;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 var clear = document.getElementById('clear');
-clear.width = canvas.width;
-clear.height = canvas.height;
+
 var clearing = false;
 
 const SCALE = 2;
@@ -57,7 +56,7 @@ function updateState(i, j) {
       ctx.fillStyle = getColors();
 
     else
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = "wheat";
 
     ctx.fillRect(i * PSIZE, j * PSIZE, PSIZE, PSIZE);
   }
@@ -239,3 +238,26 @@ clear.addEventListener('mousedown', e => {
 
   clearing = false;
 });
+
+window.onresize = function()
+{
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  width = Math.trunc(canvas.width / PSIZE);
+  height = Math.trunc(canvas.height / PSIZE);
+  life = Array(width);
+  prevLife = Array(width);
+
+  for (var i = 0; i < width; i++) {
+    life[i] = Array(height).fill(false);
+    prevLife[i] = Array(height).fill(false);
+  }
+
+  for (let i = 0; i < 100; i++) {
+    let randomI = getRandomInt(width);
+    let randomJ = getRandomInt(height);
+    life[randomI][randomJ] = true;
+  }
+
+  refreshLife();
+}

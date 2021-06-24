@@ -1,42 +1,35 @@
 html, body {
     margin: 0 !important;
     padding: 0 !important;
-    overflow: hidden;
-    background-color: black;
+    background-color: wheat;
 }
 
-#draw {
-    background: white;
-    color: white;
-    border-radius: 20px;
-    padding: 20px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-90%, -50%);
-    cursor:crosshair;
- }
-
  #clear {
-    background: white;
+    font-family: 'Londrina Solid', cursive;
+    font-size: larger;
+    background: bisque;
     color: black;
+    box-shadow: 0px 0px 0px 1px black inset;
     border-radius: 20px;
     padding: 1em;
-    position: absolute;
-    top: 50%;
-    left: 60%;
-    transform:translate(0%, -420%);
+    position: fixed;
+    top: 5%;
+    left: 80%;
     margin-left: 10vmin;
     user-select: none;
 }
 
+@media only screen and (max-width: 600px) {
+    #clear {
+        left: 50%;
+    }
+}
  #clear:hover{
-     opacity: 50%;
+     opacity: 80%;
      cursor: pointer;
  }
 
 
  #clear:active {
-    transform:translate(0%, -416%);
+    transform:translate(0%, 2%);
   }
