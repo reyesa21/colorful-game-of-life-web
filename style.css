@@ -2,10 +2,11 @@ html, body {
     margin: 0 !important;
     padding: 0 !important;
     background-color: wheat;
+    font-family: 'Londrina Solid', cursive;
+
 }
 
 #key {
-    font-family: 'Londrina Solid', cursive;
     font-size: larger;
     background: #302c2c;
     color: black;
@@ -13,14 +14,13 @@ html, body {
 
     position: fixed;
     top: 5%;
-    left: 90%;
+    left: 85%;
     width: 100px;
-    height: 160px;
+    height: 230px;
     user-select: none;
 }
  
 .button {
-    font-family: 'Londrina Solid', cursive;
     font-size: larger;
     text-align: center;
     background: bisque;
@@ -35,12 +35,13 @@ html, body {
     margin-top: 5px;
 
 }
- #clear {
-
-}
-
+ 
 #resize {
     margin-top: 80px;
+}
+
+#pause {
+    margin-top: 155px;
 }
 @media only screen and (max-width: 600px) {
 
@@ -55,4 +56,31 @@ html, body {
 
  .button:active {
     transform:translate(0%, 2%);
+  }
+
+  #tip{
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    font-size: 200%;
+    width: 500px;
+    height: 50px;
+    margin-left:-250px;
+    margin-top:-25px;
+    color: white;
+    text-align: center;
+    user-select: none;
+    background-color: #302c2c;
+
+  }
+
+  .fadeout{
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 2s, opacity 2s linear;
+  }
+
+  .disappear{
+      visibility: hidden;
+      opacity: 0;
   }

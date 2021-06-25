@@ -12,6 +12,7 @@ canvas.height = window.innerHeight * sizeMultiplier;
 let /** @type {HTMLElement} */ clear = document.getElementById('clear'); 
 
 let /** @type {Boolean} */ clearing = false;
+let /** @type {Boolean} */ paused = true;
 
 const /** @type {Number} */ SCALE = 2;
 const /** @type {Number} */ PSIZE = 10 * SCALE;
@@ -20,6 +21,7 @@ let /**@type {Number} */ width = Math.trunc(canvas.width / PSIZE);
 let /**@type {Number} */ height = Math.trunc(canvas.height / PSIZE);
 let /**@type {Boolean[][]} */ life = Array(width);
 let /**@type {Boolean[][]} */ prevLife = Array(width);
+let /**@type {Boolean[][]} */ lifeColor = Array(width);
 
 
 let /** @type {Boolean} */ mouseDown = false;
@@ -27,9 +29,14 @@ let /** @type {Boolean} */ mouseDown = false;
 let ctx = canvas.getContext('2d');
 
 window.onload = () => {
+  window.setTimeout(() =>
+  {  document.getElementById('tip').className = 'fadeout';}, 8000
+  );
+  
   for (let i = 0; i < width; i++) {
     life[i] = Array(height).fill(false);
     prevLife[i] = Array(height).fill(false);
+    lifeColor[i] = Array(height).fill('wheat');
   }
 
   //randomly turn on cells
@@ -42,15 +49,16 @@ window.onload = () => {
   refreshLife();
 };
 
+
 // refreshes cells by comparising life array with previous life array
 function refreshLife() {
   for (let i = 0; i < width; i++)
     for (let j = 0; j < height; j++) {
       if (life[i][j] != prevLife[i][j] || clearing){
           if (life[i][j] == true)
-            ctx.fillStyle = getColor();
+            ctx.fillStyle = lifeColor[i][j] = getColor();
           else
-            ctx.fillStyle = "wheat";
+            ctx.fillStyle = lifeColor[i][j] = "wheat";
       
           ctx.fillRect(i * PSIZE, j * PSIZE, PSIZE, PSIZE);
       }
@@ -132,6 +140,8 @@ function neighbors(x, y) {
  * Updates cells based on number of neighbors.
  */
 function live() {
+  if(paused)
+    return null;
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
       prevLife[i][j] = life[i][j];
@@ -148,11 +158,12 @@ function live() {
 
     if(!clearing)
       refreshLife();
-    if (!mouseDown)
+    if (!mouseDown && !paused)
       setTimeout(live, 100);
     else
       ctx.fillStyle = getColor(); // get color used for drawing
 }
+
 
 // Event handles drawing. 
 canvas.addEventListener('mousedown', e => {
@@ -163,6 +174,7 @@ canvas.addEventListener('mousedown', e => {
     let y = Math.trunc(e.offsetY / PSIZE);
     
     if(life[x][y] != undefined){
+      ctx.fillStyle = lifeColor[x][y] = getColor();
       ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
       life[x][y] = true;
     }
@@ -171,7 +183,7 @@ canvas.addEventListener('mousedown', e => {
 
 /**
  * Returns x and y coordinates.
- * @param {HTMLElement} evt 
+ * @param {Event} evt 
  * @param {HTMLElement} parent 
  * @returns {Position} Location of event.
  */
@@ -211,17 +223,38 @@ canvas.addEventListener('touchstart', e => {
   }
 });
 
+let pastX = 0;
+let pastY = 0;
 // Event to handle moving with mouse.
 canvas.addEventListener('mousemove', e => {
-  if (mouseDown) {
-    let x = Math.trunc(e.offsetX / PSIZE);
-    let y = Math.trunc(e.offsetY / PSIZE);
 
+
+  let x = Math.trunc(e.offsetX / PSIZE);
+  let y = Math.trunc(e.offsetY / PSIZE);
+  if(pastX != 0)
+    if(pastX != x || pastY != y){
+      ctx.fillStyle = lifeColor[pastX][pastY];
+      ctx.fillRect(pastX * PSIZE, pastY * PSIZE, PSIZE, PSIZE);
+    }
+    
+if (mouseDown) {
     if(life[x][y] != undefined){
+    ctx.fillStyle = lifeColor[x][y] = getColor();
+
       ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
       life[x][y] = true;
     } 
   }
+else{
+  if(life[x][y] != undefined){
+    pastX = x;
+    pastY = y;
+    ctx.fillStyle = "#B3CAF5";
+    ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+    ctx.fillStyle = lifeColor[x][y];
+
+  } 
+} 
 });
 
 // Event to handle moving with touch.
@@ -242,8 +275,9 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('mouseup', e => {
   if (mouseDown) {
     mouseDown = false;
-    live();
   }
+
+  live();
 });
 
 // Event to handle ending drawing.
@@ -317,22 +351,39 @@ clear.addEventListener('mousedown', e => {
   clearing = false;
 });
 
+let /** @type {HTMLElement} */ pause = document.getElementById('pause');
+
+pause.addEventListener('mousedown', e => {
+  if(paused){
+    pause.innerHTML = "Pause";
+    paused = false;
+    live();
+  }
+  else{
+    paused = true;
+    pause.innerHTML = "Start";
+  }
+});
+
 window.onresize = resizer;
 /**
  * Resizes canvas and adjusts life and prevLife arrays.
  */
 function resizer()
 {
+  document.getElementById('tip').className = 'disappear';
+
   canvas.width = window.innerWidth * sizeMultiplier;
   canvas.height = window.innerHeight * sizeMultiplier;
   width = Math.trunc(canvas.width / PSIZE);
   height = Math.trunc(canvas.height / PSIZE);
   life = Array(width);
   prevLife = Array(width);
-
+  lifeColor = Array(width);
   for (let i = 0; i < width; i++) {
     life[i] = Array(height).fill(false);
     prevLife[i] = Array(height).fill(false);
+    lifeColor[i] = Array(height).fill('wheat');
   }
 
   for (let i = 0; i < 100; i++) {
@@ -343,3 +394,22 @@ function resizer()
 
   refreshLife();
 }
+
+let /** @type {HTMLElement} */ menu = document.getElementById('key');
+
+// Toggles menu with 'c'.
+let /** @type {Boolean} */ isMenuVisible = true;
+document.addEventListener('keydown', e => {
+  if(e.code === 'KeyC'){
+
+    document.getElementById('tip').className = 'disappear';
+    if(isMenuVisible){
+      menu.className = "disappear";
+      isMenuVisible = false;
+    }
+    else{
+      menu.className = "";
+      isMenuVisible = true;
+    }
+  }
+});
