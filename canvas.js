@@ -1,36 +1,38 @@
-
 'use strict';
 
-var sizeMultiplier = 1.0;
-var canvas = document.getElementById('draw');
+document.body.style.overflow = 'hidden'; // toggled when changing size
+
+let sizeMultiplier = 1.0;
+
+let /** @type {HTMLElement} */ canvas = document.getElementById('draw');
+
 canvas.width = window.innerWidth * sizeMultiplier;
 canvas.height = window.innerHeight * sizeMultiplier;
-document.body.style.overflow = 'hidden';
 
-var clear = document.getElementById('clear');
+let /** @type {HTMLElement} */ clear = document.getElementById('clear'); 
 
-var clearing = false;
+let /** @type {Boolean} */ clearing = false;
 
-const SCALE = 2;
-const PSIZE = 10 * SCALE;
+const /** @type {Number} */ SCALE = 2;
+const /** @type {Number} */ PSIZE = 10 * SCALE;
 
-var width = Math.trunc(canvas.width / PSIZE);
-var height = Math.trunc(canvas.height / PSIZE);
-var life = Array(width);
-var prevLife = Array(width);
+let /**@type {Number} */ width = Math.trunc(canvas.width / PSIZE);
+let /**@type {Number} */ height = Math.trunc(canvas.height / PSIZE);
+let /**@type {Boolean[][]} */ life = Array(width);
+let /**@type {Boolean[][]} */ prevLife = Array(width);
 
 
-var mouseDown = false;
+let /** @type {Boolean} */ mouseDown = false;
 
-var ctx = canvas.getContext('2d');
+let ctx = canvas.getContext('2d');
+
 window.onload = () => {
-
-
-  for (var i = 0; i < width; i++) {
+  for (let i = 0; i < width; i++) {
     life[i] = Array(height).fill(false);
     prevLife[i] = Array(height).fill(false);
   }
 
+  //randomly turn on cells
   for (let i = 0; i < 100; i++) {
     let randomI = getRandomInt(width);
     let randomJ = getRandomInt(height);
@@ -40,32 +42,37 @@ window.onload = () => {
   refreshLife();
 };
 
+// refreshes cells by comparising life array with previous life array
 function refreshLife() {
   for (let i = 0; i < width; i++)
     for (let j = 0; j < height; j++) {
-      if (life[i][j] != prevLife[i][j] || clearing)
-        updateState(i, j);
+      if (life[i][j] != prevLife[i][j] || clearing){
+          if (life[i][j] == true)
+            ctx.fillStyle = getColor();
+          else
+            ctx.fillStyle = "wheat";
+      
+          ctx.fillRect(i * PSIZE, j * PSIZE, PSIZE, PSIZE);
+      }
     }
 }
 
+/**
+ * Returns random integer between 0 and number given.
+ * @param {Number} max 
+ * @returns {Number}
+ */
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
-function updateState(i, j) {
-  if (i < width && j < height) {
-    if (life[i][j] == true)
-      ctx.fillStyle = getColors();
-
-    else
-      ctx.fillStyle = "wheat";
-
-    ctx.fillRect(i * PSIZE, j * PSIZE, PSIZE, PSIZE);
-  }
-}
-
-function getColors(){
+/**
+ * Returns random color from a set of ten.
+ * @returns {String} Hexadecimal color code.
+ */
+function getColor(){
   let random = getRandomInt(10);
+  
   switch (random)
   {
       case 0:
@@ -89,40 +96,48 @@ function getColors(){
         case 9:
           return "#555555";
   }
-
-  return "#fff222";
 }
 
-function neighbors(i, j) {
+/**
+ * Returns the amount of neighbors for a specific cell.
+ * @param {Number} x 
+ * @param {Number} y 
+ * @returns {Number} 
+ */
+function neighbors(x, y) {
   let nb = 0;
   
-  if (j - 1 >= 0 && prevLife[i][j-1] == true) {
+  if (y - 1 >= 0 && prevLife[x][y-1] == true) {
       nb++;
   }
-  if (j + 1 < height && prevLife[i][j+1] == true) {
+  if (y + 1 < height && prevLife[x][y+1] == true) {
       nb++;
   }
 
   for (let k = 0; k < 3; k++) {
-    if (i - 1 >= 0 && j - 1 + k >= 0 && i - 1 < width && j - 1 + k < height && prevLife[i - 1][j - 1 + k] == true) {
+    if (x - 1 >= 0 && y - 1 + k >= 0 && x - 1 < width && y - 1 + k < height && prevLife[x - 1][y - 1 + k] == true) {
         nb++;
     }
   }
 
   for (let k = 0; k < 3; k++) {
-    if (i + 1 >= 0 && j - 1 + k >= 0 && i + 1 < width && j - 1 + k < height && prevLife[i + 1][j - 1 + k] == true) {
+    if (x + 1 >= 0 && y - 1 + k >= 0 && x + 1 < width && y - 1 + k < height && prevLife[x + 1][y - 1 + k] == true) {
         nb++;
     }
   }
   return nb;
 }
 
+/**
+ * Updates cells based on number of neighbors.
+ */
 function live() {
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) {
       prevLife[i][j] = life[i][j];
     }
   }
+
   let nb = 0;
   for (let a = 0; a < width; a++) {
     for (let b = 0; b < height; b++) {
@@ -133,21 +148,20 @@ function live() {
 
     if(!clearing)
       refreshLife();
-    if (!mouseDown) {
+    if (!mouseDown)
       setTimeout(live, 100);
-    }
     else
-      ctx.fillStyle = getColors();
-      
+      ctx.fillStyle = getColor(); // get color used for drawing
 }
 
-
+// Event handles drawing. 
 canvas.addEventListener('mousedown', e => {
-
   if (e.button == 0) {
     mouseDown = true;
+
     let x = Math.trunc(e.offsetX / PSIZE);
     let y = Math.trunc(e.offsetY / PSIZE);
+    
     if(life[x][y] != undefined){
       ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
       life[x][y] = true;
@@ -155,8 +169,19 @@ canvas.addEventListener('mousedown', e => {
   }
 });
 
+/**
+ * Returns x and y coordinates.
+ * @param {HTMLElement} evt 
+ * @param {HTMLElement} parent 
+ * @returns {Position} Location of event.
+ */
 function getOffsetPosition(evt, parent){
-  var position = {
+  /**
+ * @typedef {Object} Position
+ * @property {number} x - The X Coordinate
+ * @property {number} y - The Y Coordinate
+ */
+  let position = {
       x: (evt.targetTouches) ? evt.targetTouches[0].pageX : evt.clientX,
       y: (evt.targetTouches) ? evt.targetTouches[0].pageY : evt.clientY
   };
@@ -171,21 +196,27 @@ function getOffsetPosition(evt, parent){
   return position;
 }
 
+// Touch screen drawing event.
 canvas.addEventListener('touchstart', e => {
   let offset = getOffsetPosition(e, canvas);
+
   mouseDown = true;
+  
   let x = Math.trunc(offset.x / PSIZE);
   let y = Math.trunc(offset.y / PSIZE);
+  
   if(life[x][y] != undefined){
     ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
     life[x][y] = true;
   }
 });
 
+// Event to handle moving with mouse.
 canvas.addEventListener('mousemove', e => {
   if (mouseDown) {
     let x = Math.trunc(e.offsetX / PSIZE);
     let y = Math.trunc(e.offsetY / PSIZE);
+
     if(life[x][y] != undefined){
       ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
       life[x][y] = true;
@@ -193,16 +224,21 @@ canvas.addEventListener('mousemove', e => {
   }
 });
 
+// Event to handle moving with touch.
 canvas.addEventListener('touchmove', e => {
   if (mouseDown) {
     let offset = getOffsetPosition(e, canvas);
 
     let x = Math.trunc(offset.x / PSIZE);
     let y = Math.trunc(offset.y / PSIZE);
+    
     ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+    
     life[x][y] = true;
   }
 });
+
+// Event to handle ending drawing.
 canvas.addEventListener('mouseup', e => {
   if (mouseDown) {
     mouseDown = false;
@@ -210,6 +246,7 @@ canvas.addEventListener('mouseup', e => {
   }
 });
 
+// Event to handle ending drawing.
 canvas.addEventListener('touchend', e => {
   if (mouseDown) {
     mouseDown = false;
@@ -217,6 +254,7 @@ canvas.addEventListener('touchend', e => {
   } 
 });
 
+// Event to disable right clicking in canvas.
 if (canvas.addEventListener) {
   canvas.addEventListener('contextmenu', function(e) {
     e.preventDefault();
@@ -228,8 +266,10 @@ if (canvas.addEventListener) {
   });
 }
 
-var resize = document.getElementById('resize');
-var resizeCounter = 0;
+let /** @type {HTMLElement} */ resize = document.getElementById('resize');
+let /** @type {Number} */ resizeCounter = 0;
+
+// Handles resize button which resizes the canvas in a cyclical manner.
 resize.addEventListener('mousedown', e=> {
   switch(resizeCounter){
     case -1:
@@ -265,9 +305,10 @@ resize.addEventListener('mousedown', e=> {
   resizer();
 })
 
+// Handles clear button, which removes all living cells.
 clear.addEventListener('mousedown', e => {
   clearing = true;
-  for (var i = 0; i < width; i++) {
+  for (let i = 0; i < width; i++) {
     for(let j = 0; j < height; j++)
       life[i][j] = false;
   }
@@ -277,7 +318,9 @@ clear.addEventListener('mousedown', e => {
 });
 
 window.onresize = resizer;
-
+/**
+ * Resizes canvas and adjusts life and prevLife arrays.
+ */
 function resizer()
 {
   canvas.width = window.innerWidth * sizeMultiplier;
@@ -287,7 +330,7 @@ function resizer()
   life = Array(width);
   prevLife = Array(width);
 
-  for (var i = 0; i < width; i++) {
+  for (let i = 0; i < width; i++) {
     life[i] = Array(height).fill(false);
     prevLife[i] = Array(height).fill(false);
   }
