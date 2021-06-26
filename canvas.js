@@ -223,15 +223,15 @@ canvas.addEventListener('touchstart', e => {
   }
 });
 
-let pastX = 0;
-let pastY = 0;
+let pastX = -1;
+let pastY = -1;
 // Event to handle moving with mouse.
 canvas.addEventListener('mousemove', e => {
 
 
   let x = Math.trunc(e.offsetX / PSIZE);
   let y = Math.trunc(e.offsetY / PSIZE);
-  if(pastX != 0)
+  if(pastX != -1)
     if(pastX != x || pastY != y){
       ctx.fillStyle = lifeColor[pastX][pastY];
       ctx.fillRect(pastX * PSIZE, pastY * PSIZE, PSIZE, PSIZE);
