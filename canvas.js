@@ -19,9 +19,9 @@ const /** @type {Number} */ PSIZE = 10 * SCALE;
 
 let /**@type {Number} */ width = Math.trunc(canvas.width / PSIZE);
 let /**@type {Number} */ height = Math.trunc(canvas.height / PSIZE);
-let /**@type {Boolean[][]} */ life = Array(width);
-let /**@type {Boolean[][]} */ prevLife = Array(width);
-let /**@type {Boolean[][]} */ lifeColor = Array(width);
+let /**@type {Boolean[][]} */ life = [];
+let /**@type {Boolean[][]} */ prevLife = [];
+let /**@type {Boolean[][]} */ lifeColor = [];
 
 
 let /** @type {Boolean} */ mouseDown = false;
@@ -34,9 +34,9 @@ window.onload = () => {
   );
   
   for (let i = 0; i < width; i++) {
-    life[i] = Array(height).fill(false);
-    prevLife[i] = Array(height).fill(false);
-    lifeColor[i] = Array(height).fill('wheat');
+    life[i] = [];
+    prevLife[i] = [];
+    lifeColor[i] = [];
   }
 
   //randomly turn on cells
@@ -173,7 +173,7 @@ canvas.addEventListener('mousedown', e => {
     let x = Math.trunc(e.offsetX / PSIZE);
     let y = Math.trunc(e.offsetY / PSIZE);
     
-    if(life[x][y] != undefined){
+    if(life[x] != undefined){
       ctx.fillStyle = lifeColor[x][y] = getColor();
       ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
       life[x][y] = true;
@@ -231,30 +231,31 @@ canvas.addEventListener('mousemove', e => {
 
   let x = Math.trunc(e.offsetX / PSIZE);
   let y = Math.trunc(e.offsetY / PSIZE);
-  if(pastX != -1)
-    if(pastX != x || pastY != y){
-      ctx.fillStyle = lifeColor[pastX][pastY];
-      ctx.fillRect(pastX * PSIZE, pastY * PSIZE, PSIZE, PSIZE);
+  if (life[x] != undefined) {
+    if (pastX != -1)
+      if (pastX != x || pastY != y) {
+        ctx.fillStyle = lifeColor[pastX][pastY] ? lifeColor[pastX][pastY] : "wheat";
+        ctx.fillRect(pastX * PSIZE, pastY * PSIZE, PSIZE, PSIZE);
+      }
+
+    if (mouseDown) {
+      if (life[x] != undefined) {
+        ctx.fillStyle = lifeColor[x][y] = getColor();
+
+        ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+        life[x][y] = true;
+      }
     }
-    
-if (mouseDown) {
-    if(life[x][y] != undefined){
-    ctx.fillStyle = lifeColor[x][y] = getColor();
+    else {
+      if (life[x] != undefined) {
+        pastX = x;
+        pastY = y;
+        ctx.fillStyle = "#B3CAF5";
+        ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
 
-      ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
-      life[x][y] = true;
-    } 
+      }
+    }
   }
-else{
-  if(life[x][y] != undefined){
-    pastX = x;
-    pastY = y;
-    ctx.fillStyle = "#B3CAF5";
-    ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
-    ctx.fillStyle = lifeColor[x][y];
-
-  } 
-} 
 });
 
 // Event to handle moving with touch.
@@ -275,9 +276,9 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('mouseup', e => {
   if (mouseDown) {
     mouseDown = false;
+    live();
   }
 
-  live();
 });
 
 // Event to handle ending drawing.
@@ -377,20 +378,12 @@ function resizer()
   canvas.height = window.innerHeight * sizeMultiplier;
   width = Math.trunc(canvas.width / PSIZE);
   height = Math.trunc(canvas.height / PSIZE);
-  life = Array(width);
-  prevLife = Array(width);
-  lifeColor = Array(width);
-  for (let i = 0; i < width; i++) {
-    life[i] = Array(height).fill(false);
-    prevLife[i] = Array(height).fill(false);
-    lifeColor[i] = Array(height).fill('wheat');
-  }
 
-  for (let i = 0; i < 100; i++) {
-    let randomI = getRandomInt(width);
-    let randomJ = getRandomInt(height);
-    life[randomI][randomJ] = true;
-  }
+  for (let i = life.length; i < width; i++) {
+      life.push(Array(height).fill(false));
+      prevLife.push(Array(height).fill(false));
+      lifeColor.push(Array(height).fill('wheat'));
+    }
 
   refreshLife();
 }
@@ -413,3 +406,15 @@ document.addEventListener('keydown', e => {
     }
   }
 });
+
+
+let save = document.getElementById('save');
+
+save.addEventListener('mousedown', e => {
+  if(e.button === 0){
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(life));
+    save.setAttribute("href",     dataStr     );
+    save.setAttribute("download", "cgol.json");
+    save.click();
+  }
+})

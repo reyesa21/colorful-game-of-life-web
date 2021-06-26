@@ -16,7 +16,7 @@ html, body {
     top: 5%;
     left: 85%;
     width: 100px;
-    height: 230px;
+    height: 305px;
     user-select: none;
 }
  
@@ -42,6 +42,10 @@ html, body {
 
 #pause {
     margin-top: 155px;
+}
+
+#save {
+    margin-top: 230px;
 }
 @media only screen and (max-width: 600px) {
 
