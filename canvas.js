@@ -471,3 +471,31 @@ function setColorPalette(){
   document.getElementById('color9').style.backgroundColor = cellColor9;
 
 }
+
+let randomColorButton = document.getElementById('randomColorButton');
+
+randomColorButton.addEventListener('mousedown', e => {
+  if(e.button === 0){
+
+    let hsv =       {
+      h: getRandomInt(360),
+      s: Math.random(),
+      v: 1
+    };
+    [cellColor0, cellColor1, cellColor2, cellColor3, cellColor4, cellColor5] =
+    Please.make_scheme(
+      hsv,
+      {
+        scheme_type: 'analogous',
+        format: 'hex'
+      });
+    [cellColor6, cellColor7, cellColor8, cellColor9] =
+    Please.make_scheme(hsv, {scheme_type: 'double', format: 'hex'});
+    cellColor6 = Please.make_color();
+    setColorPalette();
+
+    clearing = true;
+    refreshLife();
+    clearing = false;
+  }
+})

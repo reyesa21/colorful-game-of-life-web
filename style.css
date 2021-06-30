@@ -80,6 +80,14 @@ html, body {
     transition-duration: 50ms;
 }
 
+#randomColorButton{
+    background-color: #302c2c;
+    color: white;
+    margin-top: 140px;
+    margin-left: 60px;
+    width: 80px;
+
+}
 #color0{
     margin-left:-100px;
     background-color: green;
