@@ -38,6 +38,7 @@ let cellColor9 = "#555555";
 let speedOfLife = 100;
 
 let /** @type {Boolean} */ mouseDown = false;
+let /** @type {Boolean} */ rightMouseDown = false;
 
 let ctx = canvas.getContext('2d');
 
@@ -171,7 +172,7 @@ function live() {
 
     if(!clearing)
       refreshLife();
-    if (!mouseDown && !paused)
+    if (!mouseDown && !paused && !rightMouseDown)
       setTimeout(live, speedOfLife);
     else
       ctx.fillStyle = getColor(); // get color used for drawing
@@ -190,6 +191,19 @@ canvas.addEventListener('mousedown', e => {
       ctx.fillStyle = lifeColor[x][y] = getColor();
       ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
       life[x][y] = true;
+    }
+  }
+
+  if(e.button == 2) {
+    rightMouseDown = true;
+
+    let x = Math.trunc(e.offsetX / PSIZE);
+    let y = Math.trunc(e.offsetY / PSIZE);
+    
+    if(life[x] != undefined){
+      ctx.fillStyle = lifeColor[x][y] = "wheat";
+      ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+      life[x][y] = false;
     }
   }
 });
@@ -259,6 +273,14 @@ canvas.addEventListener('mousemove', e => {
         life[x][y] = true;
       }
     }
+    else if(rightMouseDown) {
+      if (life[x] != undefined) {
+        ctx.fillStyle = lifeColor[x][y] = "wheat";
+
+        ctx.fillRect(x * PSIZE, y * PSIZE, PSIZE, PSIZE);
+        life[x][y] = false;
+      }
+    }
     else {
       if (life[x] != undefined) {
         pastX = x;
@@ -292,6 +314,10 @@ canvas.addEventListener('mouseup', e => {
     live();
   }
 
+  if (rightMouseDown) {
+    rightMouseDown = false;
+    live();
+  }
 });
 
 // Event to handle ending drawing.
