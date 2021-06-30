@@ -35,7 +35,7 @@ let cellColor7 = "#311222";
 let cellColor8 = "#666666";
 let cellColor9 = "#555555";
 
-
+let speedOfLife = 100;
 
 let /** @type {Boolean} */ mouseDown = false;
 
@@ -172,7 +172,7 @@ function live() {
     if(!clearing)
       refreshLife();
     if (!mouseDown && !paused)
-      setTimeout(live, 100);
+      setTimeout(live, speedOfLife);
     else
       ctx.fillStyle = getColor(); // get color used for drawing
 }
@@ -476,11 +476,14 @@ let randomColorButton = document.getElementById('randomColorButton');
 
 randomColorButton.addEventListener('mousedown', e => {
   if(e.button === 0){
-
+    document.getElementById('colorSelector').classList.toggle('shake-vertical'); 
+    window.setTimeout(() =>
+    {      document.getElementById('colorSelector').classList.toggle('shake-vertical');   }, 250
+    );
     let hsv =       {
       h: getRandomInt(360),
-      s: Math.random(),
-      v: 1
+      s: Math.max(0.8, Math.random()),
+      v: Math.max(0.8, Math.random())
     };
     [cellColor0, cellColor1, cellColor2, cellColor3, cellColor4, cellColor5] =
     Please.make_scheme(
@@ -497,5 +500,38 @@ randomColorButton.addEventListener('mousedown', e => {
     clearing = true;
     refreshLife();
     clearing = false;
+
+  }
+})
+
+let speedButton = document.getElementById('speedButton');
+let speedCounter = 0;
+speedButton.addEventListener('mousedown', e=> {
+  switch(speedCounter){
+    case -1:
+      speedCounter++;
+      speedButton.innerHTML="Crawl";
+      speedOfLife = 100;
+      break;
+    case 0:
+      speedCounter++;
+      speedButton.innerHTML="Walk";
+      speedOfLife = 80;
+      break;
+    case 1:
+      speedCounter++;
+      speedButton.innerHTML="Jog";
+      speedOfLife = 60;
+      break;
+    case 2:
+      speedCounter++;
+      speedButton.innerHTML="Run";
+      speedOfLife = 40;
+      break;
+    case 3:
+      speedCounter = -1;
+      speedButton.innerHTML="Sprint";
+      speedOfLife = 20;
+      break;
   }
 })

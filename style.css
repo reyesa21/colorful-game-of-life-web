@@ -16,8 +16,11 @@ html, body {
     top: 5%;
     left: 85%;
     width: 100px;
-    height: 380px;
-    user-select: none;
+    height: 455px;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 }
  
 .button {
@@ -30,7 +33,10 @@ html, body {
     padding: 20px;
     width: 50px;
     position: fixed;
-    user-select: none;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
     margin-left: 5px;
     margin-top: 5px;
 
@@ -52,11 +58,14 @@ html, body {
     margin-top: 305px;
 }
 
+#speedButton {
+    margin-top: 380px;
+}
 #colorSelector{
     height: 120px;
     width: 240px;
     background-color: #302c2c;
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     margin-left:-100px;
@@ -76,7 +85,7 @@ html, body {
 }
 
 .color:hover{
-    transform: translate(0, -5%);
+    transform:scale(110%);
     transition-duration: 50ms;
 }
 
@@ -171,7 +180,10 @@ html, body {
     margin-top:-25px;
     color: white;
     text-align: center;
-    user-select: none;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
     background-color: #302c2c;
 
   }
@@ -193,4 +205,8 @@ html, body {
       position: fixed;
       background-color:rgba(0, 0, 0, 0.5);
       z-index: 1;
+  }
+
+  .shake{
+      
   }
