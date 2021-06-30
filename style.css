@@ -7,16 +7,14 @@ html, body {
 }
 
 #key {
-    font-size: larger;
     background: #302c2c;
     color: black;
-    border-radius: 20px;
-
+    border-radius: 3vmin;
     position: fixed;
     top: 5%;
     left: 85%;
-    width: 100px;
-    height: 455px;
+    width: 10vmin;
+    height: 50vmin;
     -webkit-user-select: none;
        -moz-user-select: none;
         -ms-user-select: none;
@@ -24,42 +22,42 @@ html, body {
 }
  
 .button {
-    font-size: larger;
+    font-size: 3vmin;
     text-align: center;
     background: bisque;
     color: black;
-    box-shadow: 0px 0px 0px 1px black inset;
-    border-radius: 20px;
-    padding: 20px;
-    width: 50px;
+    box-shadow: 0vmin 0vmin 0vmin 0.2vmin black inset;
+    border-radius: 3vmin;
+    padding: 2vmin;
+    width: 5vmin;
     position: fixed;
     -webkit-user-select: none;
        -moz-user-select: none;
         -ms-user-select: none;
             user-select: none;
-    margin-left: 5px;
-    margin-top: 5px;
+    margin-left: 0.5vmin;
+    margin-top: 1vmin;
 
 }
  
 #resize {
-    margin-top: 80px;
+    margin-top: 9vmin;
 }
 
 #pause {
-    margin-top: 155px;
+    margin-top: 17vmin;
 }
 
 #save {
-    margin-top: 230px;
+    margin-top: 25vmin;
 }
 
 #colorButton {
-    margin-top: 305px;
+    margin-top: 33vmin;
 }
 
 #speedButton {
-    margin-top: 380px;
+    margin-top: 41vmin;
 }
 #colorSelector{
     height: 120px;
@@ -80,13 +78,15 @@ html, body {
     position: absolute;
     top: 50%;
     left: 50%;
-
+    text-align: center;
     margin-top:-40px;
+    line-height: 40px !important;
 }
 
 .color:hover{
-    transform:scale(110%);
+    transform:scale(105%);
     transition-duration: 50ms;
+    z-index: 3;
 }
 
 #randomColorButton{
@@ -95,6 +95,16 @@ html, body {
     margin-top: 140px;
     margin-left: 60px;
     width: 80px;
+    font-size: larger;
+    text-align: center;
+    box-shadow: 0px 0px 0px 1px black inset;
+    border-radius: 20px;
+    padding: 20px;
+    position: fixed;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 
 }
 #color0{
@@ -156,9 +166,7 @@ html, body {
 
 @media only screen and (max-width: 600px) {
 
-    #key {
-        left: 50%;
-    }
+
 }
  .button:hover{
      opacity: 80%;
@@ -207,3 +215,6 @@ html, body {
       z-index: 1;
   }
 
+.fa-lock{
+    color:white;
+}

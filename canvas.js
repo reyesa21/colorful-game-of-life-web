@@ -24,16 +24,14 @@ let /**@type {Boolean[][]} */ life = [];
 let /**@type {Boolean[][]} */ prevLife = [];
 let /**@type {Boolean[][]} */ lifeColor = [];
 
-let cellColor0 = "#F10891";
-let cellColor1 = "#B00B69";
-let cellColor2 = "#F0F0FA";
-let cellColor3 = "#FAAAEE";
-let cellColor4 = "#E0DCAA";
-let cellColor5 = "#523445";
-let cellColor6 = "#323231";
-let cellColor7 = "#311222";
-let cellColor8 = "#666666";
-let cellColor9 = "#555555";
+class cellColor {
+  constructor(color){
+    this.color = color;
+    this.kept = false;
+  }
+}
+
+let cellColors = [new cellColor("#F10891"), new cellColor("#B00B69"), new cellColor("#F0F0FA"), new cellColor("#FAAAEE"), new cellColor("#E0DCAA"), new cellColor("#523445"), new cellColor("#323231"), new cellColor("#311222"), new cellColor("#666666"), new cellColor("#555555")];
 
 let speedOfLife = 100;
 
@@ -98,25 +96,25 @@ function getColor(){
   switch (random)
   {
       case 0:
-          return cellColor0;
+          return cellColors[0].color;
       case 1:
-          return cellColor1;
+          return cellColors[1].color;
       case 2:
-          return cellColor2;
+          return cellColors[2].color;
       case 3:
-          return cellColor3;
+          return cellColors[3].color;
       case 4:
-          return cellColor4;
+          return cellColors[4].color;
       case 5:
-          return cellColor5;
+          return cellColors[5].color;
       case 6:
-          return cellColor6;
+          return cellColors[6].color;
       case 7:
-          return cellColor7;
+          return cellColors[7].color;
       case 8:
-          return cellColor8;     
+          return cellColors[8].color;     
         case 9:
-          return cellColor9;
+          return cellColors[9].color;
   }
 }
 
@@ -391,7 +389,7 @@ clear.addEventListener('mousedown', e => {
   clearing = false;
 });
 
-let /** @type {HTMLElement} */ pause = document.getElementById('pause');
+let /** @type {HTMLElement} */  pause = document.getElementById('pause');
 
 pause.addEventListener('mousedown', e => {
   if(paused){
@@ -484,21 +482,22 @@ function disappearColorSelector(e){
   }
 }
 
+let /** @type {[HTMLElement]} */colorBlocks = [document.getElementById('color0'),
+document.getElementById('color1'),
+document.getElementById('color2'),
+document.getElementById('color3'),
+document.getElementById('color4'),
+document.getElementById('color5'),
+document.getElementById('color6'),
+document.getElementById('color7'),
+document.getElementById('color8'),
+document.getElementById('color9')]
+
 function setColorPalette(){
-  document.getElementById('color0').style.backgroundColor = cellColor0;
-  document.getElementById('color1').style.backgroundColor = cellColor1;
-  document.getElementById('color2').style.backgroundColor = cellColor2;
-  document.getElementById('color3').style.backgroundColor = cellColor3;
-  document.getElementById('color4').style.backgroundColor = cellColor4;
-  document.getElementById('color5').style.backgroundColor = cellColor5;
-  document.getElementById('color6').style.backgroundColor = cellColor6;
-  document.getElementById('color7').style.backgroundColor = cellColor7;
-  document.getElementById('color8').style.backgroundColor = cellColor8;
-  document.getElementById('color9').style.backgroundColor = cellColor9;
-
+  for(let i = 0; i < colorBlocks.length; i++){
+    colorBlocks[i].style.backgroundColor = cellColors[i].color;
+  }  
 }
-
-let randomColorButton = document.getElementById('randomColorButton');
 
 randomColorButton.addEventListener('mousedown', e => {
   if(e.button === 0){
@@ -511,16 +510,22 @@ randomColorButton.addEventListener('mousedown', e => {
       s: Math.max(0.8, Math.random()),
       v: Math.max(0.8, Math.random())
     };
-    [cellColor0, cellColor1, cellColor2, cellColor3, cellColor4, cellColor5] =
+
+    let randomColors = (
     Please.make_scheme(
       hsv,
       {
         scheme_type: 'analogous',
         format: 'hex'
-      });
-    [cellColor6, cellColor7, cellColor8, cellColor9] =
-    Please.make_scheme(hsv, {scheme_type: 'double', format: 'hex'});
-    cellColor6 = Please.make_color();
+      })
+    )
+
+    Array.prototype.push.apply(randomColors, Please.make_scheme(hsv, {scheme_type: 'double', format: 'hex'}));
+
+    for(let i = 0; i < cellColors.length; i++){
+      cellColors[i].color = cellColors[i].kept ? cellColors[i].color : Please.make_color({full_random: true});
+    }
+
     setColorPalette();
 
     clearing = true;
@@ -561,3 +566,23 @@ speedButton.addEventListener('mousedown', e=> {
       break;
   }
 })
+
+/**
+ * 
+ * @param {Event} e Mousedown event. 
+ * @param {HTMLElement} colorBlock The color block that will be kept.
+ */
+function keepColor(e, colorBlock, colorCell){
+  if(e.button === 0){
+      colorBlock.classList.toggle("fas");
+      colorBlock.classList.toggle("fa-lock");
+      colorBlock.classList.toggle("fa-2x");
+
+      colorCell.kept = !colorCell.kept;
+  }
+}
+
+for(let i = 0; i < colorBlocks.length; i++)
+  colorBlocks[i].addEventListener('mousedown', e => keepColor(e, colorBlocks[i], cellColors[i]));
+  
+
