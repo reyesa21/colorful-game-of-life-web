@@ -12,7 +12,7 @@ html, body {
     border-radius: 3vmin;
     position: fixed;
     top: 5%;
-    left: 85%;
+    left: 88%;
     width: 10vmin;
     height: 50vmin;
     -webkit-user-select: none;
@@ -23,7 +23,8 @@ html, body {
  
 .button {
     font-size: 3vmin;
-    text-align: center;
+    text-align:center;
+    text-indent: -15%;
     background: bisque;
     color: black;
     box-shadow: 0vmin 0vmin 0vmin 0.2vmin black inset;
@@ -178,7 +179,7 @@ html, body {
   }
 
   #tip{
-    position: absolute;
+    position: fixed;
     left: 50%;
     bottom: 0;
     font-size: 200%;
