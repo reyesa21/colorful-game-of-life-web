@@ -6,13 +6,13 @@ class Cell {
    * @param {Boolean} isAlive
    * @param {Boolean} wasAlive
    */
-  constructor(isAlive, wasAlive) {
+  constructor(isAlive, wasAlive, color = "wheat") {
     /**@type {Boolean} */
     this.isAlive = isAlive;
     /**@type {Boolean} */
     this.wasAlive = wasAlive;
     /**@type {string} */
-    this.color = "wheat";
+    this.color = color;
   }
 }
 
@@ -41,17 +41,16 @@ class BlockPainter {
   }
 }
 
-
-document.body.style.overflow = "hidden"; // toggled when changing size
-
-
 let /** @type {HTMLElement} */ canvas = document.getElementById("draw");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let /** @type {HTMLElement} */ clear = document.getElementById("clear");
+
 let /** @type {Boolean} */ clearing = false;
 let /** @type {Boolean} */ paused = true;
+let /** @type {Boolean} */ mouseDown = false;
+let /** @type {Boolean} */ erasing = false;
 
 const /** @type {Number} */ SCALE = 2;
 const /** @type {Number} */ PSIZE = 10 * SCALE;
@@ -60,8 +59,11 @@ const /** @type {String} */ hoverColor = "#B3CAF5";
 let /**@type {Number} */ width = Math.trunc(canvas.width / PSIZE);
 let /**@type {Number} */ height = Math.trunc(canvas.height / PSIZE);
 
+let speedOfLife = 100;
 
 let /**@type {Cell[][]} */ life = [];
+let /**@type {Cell[][][]} */ undoLives = [];
+let /**@type {Cell[][][]} */ redoLives = [];
 
 let cellColors = [
   new CellColor("#F10891"),
@@ -76,14 +78,26 @@ let cellColors = [
   new CellColor("#555555"),
 ];
 
-let speedOfLife = 100;
-
-let /** @type {Boolean} */ mouseDown = false;
-let /** @type {Boolean} */ rightMouseDown = false;
-
 let ctx = canvas.getContext("2d");
 
 let blockPainter = new BlockPainter(ctx, PSIZE, "wheat");
+
+/**
+ * Returns random integer between 0 and number given.
+ * @param {Number} max
+ * @returns {Number}
+ */
+ function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+/**
+ * Returns random color from a set of ten.
+ * @returns {String} Hexadecimal color code.
+ */
+ function getColor() {
+  return cellColors[getRandomInt(10)].color;
+}
 
 window.onload = () => {
   window.setTimeout(() => {
@@ -104,12 +118,16 @@ window.onload = () => {
 };
 
 // refreshes cells by comparising life array with previous life array
-function refreshLife() {
+function refreshLife(refreshAll) {
   for (let i = 0; i < width; i++)
     for (let j = 0; j < height; j++) {
-      if (life[i][j].isAlive != life[i][j].wasAlive || clearing) {
+      if (life[i][j].isAlive != life[i][j].wasAlive || refreshAll) {
         if (life[i][j].isAlive == true) {
-          life[i][j].color = getColor();
+          life[i][j].color =
+            life[i][j].color != blockPainter.defaultColor
+              ? life[i][j].color
+              : getColor();
+
           blockPainter.paintBlock(i, j, life[i][j].color);
         } 
         
@@ -122,45 +140,27 @@ function refreshLife() {
 }
 
 /**
- * Returns random integer between 0 and number given.
- * @param {Number} max
- * @returns {Number}
- */
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-/**
- * Returns random color from a set of ten.
- * @returns {String} Hexadecimal color code.
- */
-function getColor() {
-  return cellColors[getRandomInt(10)].color;
-}
-
-/**
  * Returns the amount of neighbors for a specific cell.
  * @param {Number} x
  * @param {Number} y
+ * @param {Boolean[][]} arr
  * @returns {Number}
  */
-function neighbors(x, y) {
+function neighbors(x, y, arr) {
   let nb = 0;
 
-  if (y - 1 >= 0 && life[x][y - 1].wasAlive == true) {
+  if (y - 1 >= 0 && arr[x][y - 1].wasAlive == true) {
     nb++;
   }
-  if (y + 1 < height && life[x][y + 1].wasAlive == true) {
+  if (y + 1 < height && arr[x][y + 1].wasAlive == true) {
     nb++;
   }
 
   for (let k = 0; k < 3; k++) {
     if (
-      x - 1 >= 0 &&
-      x - 1 < width &&
-      y - 1 + k >= 0 &&
-      y - 1 + k < height &&
-      life[x - 1][y - 1 + k].wasAlive == true
+      x - 1 >= 0 && x - 1 < width &&
+      y - 1 + k >= 0 && y - 1 + k < height &&
+      arr[x - 1][y - 1 + k].wasAlive == true
     ) {
       nb++;
     }
@@ -168,11 +168,9 @@ function neighbors(x, y) {
 
   for (let k = 0; k < 3; k++) {
     if (
-      x + 1 >= 0 &&
-      x + 1 < width &&
-      y - 1 + k >= 0 &&
-      y - 1 + k < height &&
-      life[x + 1][y - 1 + k].wasAlive == true
+      x + 1 >= 0 && x + 1 < width &&
+      y - 1 + k >= 0 && y - 1 + k < height &&
+      arr[x + 1][y - 1 + k].wasAlive == true
     ) {
       nb++;
     }
@@ -194,13 +192,13 @@ function live() {
   let nb = 0;
   for (let a = 0; a < width; a++) {
     for (let b = 0; b < height; b++) {
-      nb = neighbors(a, b);
+      nb = neighbors(a, b, life);
       life[a][b].isAlive = nb != 2 ? nb == 3 : life[a][b].isAlive;
     }
   }
 
-  if (!clearing) refreshLife();
-  if (!mouseDown && !paused && !rightMouseDown) setTimeout(live, speedOfLife);
+  if (!clearing) refreshLife(false);
+  if (!mouseDown && !paused && !erasing) setTimeout(live, speedOfLife);
 }
 
 // Event handles drawing.
@@ -219,7 +217,7 @@ canvas.addEventListener("mousedown", (e) => {
   }
 
   if (e.button == 2) {
-    rightMouseDown = true;
+    erasing = true;
 
     let x = Math.trunc(e.offsetX / PSIZE);
     let y = Math.trunc(e.offsetY / PSIZE);
@@ -259,22 +257,6 @@ function getOffsetPosition(evt, parent) {
   return position;
 }
 
-// Touch screen drawing event.
-canvas.addEventListener("touchstart", (e) => {
-  let offset = getOffsetPosition(e, canvas);
-
-  mouseDown = true;
-
-  let x = Math.trunc(offset.x / PSIZE);
-  let y = Math.trunc(offset.y / PSIZE);
-
-  if (life[x][y].isAlive != undefined) {
-    life[x][y].color = getColor();
-    blockPainter.paintBlock(x, y);
-    life[x][y].isAlive = true;
-  }
-});
-
 let pastX = -1;
 let pastY = -1;
 // Event to handle moving with mouse.
@@ -299,7 +281,7 @@ canvas.addEventListener("mousemove", (e) => {
         blockPainter.paintBlock(x, y, life[x][y].color);
         life[x][y].isAlive = true;
       }
-    } else if (rightMouseDown) {
+    } else if (erasing) {
       if (life[x] != undefined) {
         life[x][y].color = blockPainter.defaultColor;
         blockPainter.paintBlock(x, y, life[x][y].color);
@@ -313,6 +295,52 @@ canvas.addEventListener("mousemove", (e) => {
         blockPainter.paintBlock(x, y, hoverColor);
       }
     }
+  }
+});
+
+
+// Event to handle ending drawing.
+canvas.addEventListener("mouseup", (e) => {
+  if (mouseDown) {
+    mouseDown = false;
+    live();
+  }
+
+  if (erasing) {
+    erasing = false;
+    live();
+  }
+});
+
+
+// Event to disable right clicking in canvas.
+if (canvas.addEventListener) {
+  canvas.addEventListener(
+    "contextmenu",
+    function (e) {
+      e.preventDefault();
+    },
+    false
+  );
+} else {
+  canvas.attachEvent("oncontextmenu", function () {
+    window.event.returnValue = false;
+  });
+}
+
+// Touch screen drawing event.
+canvas.addEventListener("touchstart", (e) => {
+  let offset = getOffsetPosition(e, canvas);
+
+  mouseDown = true;
+
+  let x = Math.trunc(offset.x / PSIZE);
+  let y = Math.trunc(offset.y / PSIZE);
+
+  if (life[x][y].isAlive != undefined) {
+    life[x][y].color = getColor();
+    blockPainter.paintBlock(x, y);
+    life[x][y].isAlive = true;
   }
 });
 
@@ -333,41 +361,12 @@ canvas.addEventListener("touchmove", (e) => {
 });
 
 // Event to handle ending drawing.
-canvas.addEventListener("mouseup", (e) => {
-  if (mouseDown) {
-    mouseDown = false;
-    live();
-  }
-
-  if (rightMouseDown) {
-    rightMouseDown = false;
-    live();
-  }
-});
-
-// Event to handle ending drawing.
 canvas.addEventListener("touchend", (e) => {
   if (mouseDown) {
     mouseDown = false;
     live();
   }
 });
-
-// Event to disable right clicking in canvas.
-if (canvas.addEventListener) {
-  canvas.addEventListener(
-    "contextmenu",
-    function (e) {
-      e.preventDefault();
-    },
-    false
-  );
-} else {
-  canvas.attachEvent("oncontextmenu", function () {
-    alert("You've tried to open context menu");
-    window.event.returnValue = false;
-  });
-}
 
 let /** @type {HTMLElement} */ resize = document.getElementById("resize");
 let /** @type {Number} */ resizeCounter = 0;
@@ -378,7 +377,7 @@ resize.addEventListener("mousedown", (e) => {
     case -1:
       resizeCounter++;
       resize.innerHTML = "1.0x";
-      resizer();
+      resizer(1);
       document.body.style.overflow = "hidden";
       break;
     case 0:
@@ -413,7 +412,7 @@ clear.addEventListener("mousedown", (e) => {
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) life[i][j].isAlive = false;
   }
-  refreshLife();
+  refreshLife(clearing);
 
   clearing = false;
 });
@@ -422,6 +421,8 @@ let /** @type {HTMLElement} */ pause = document.getElementById("pause");
 
 pause.addEventListener("mousedown", (e) => {
   if (paused) {
+    updateUndoRedoArray(undoLives);
+
     pause.innerHTML = "Pause";
     paused = false;
     live();
@@ -450,7 +451,7 @@ function resizer(sizeMultiplier) {
         life[i][j] != undefined ? life[i][j] : new Cell(false, false);
   }
 
-  refreshLife();
+  refreshLife(clearing);
 }
 
 let /** @type {HTMLElement} */ menu = document.getElementById("key");
@@ -555,41 +556,25 @@ randomColorButton.addEventListener("mousedown", (e) => {
 
     setColorPalette();
 
-    clearing = true;
-    refreshLife();
-    clearing = false;
+    refreshLife(true);
   }
 });
 
 let speedButton = document.getElementById("speedButton");
-let speedCounter = 0;
 speedButton.addEventListener("mousedown", (e) => {
-  switch (speedCounter) {
-    case -1:
-      speedCounter++;
-      speedButton.innerHTML = "Crawl";
-      speedOfLife = 100;
-      break;
-    case 0:
-      speedCounter++;
-      speedButton.innerHTML = "Walk";
-      speedOfLife = 80;
-      break;
-    case 1:
-      speedCounter++;
-      speedButton.innerHTML = "Jog";
-      speedOfLife = 60;
-      break;
-    case 2:
-      speedCounter++;
-      speedButton.innerHTML = "Run";
-      speedOfLife = 40;
-      break;
-    case 3:
-      speedCounter = -1;
-      speedButton.innerHTML = "Sprint";
-      speedOfLife = 20;
-      break;
+  speedOfLife = speedOfLife-20 > 0 ? speedOfLife-20 : 100;
+
+  switch (speedOfLife) {
+    case 100:
+      speedButton.innerHTML = "Crawl"; break;
+    case 80:
+      speedButton.innerHTML = "Walk"; break;
+    case 60:
+      speedButton.innerHTML = "Jog"; break;
+    case 40:
+      speedButton.innerHTML = "Run"; break;
+    case 20:
+      speedButton.innerHTML = "Sprint"; break;
   }
 });
 
@@ -608,7 +593,48 @@ function keepColor(e, colorBlock, colorCell) {
   }
 }
 
-for (let i = 0; i < colorBlocks.length; i++)
+for (let i = 0; i < colorBlocks.length; i++){
   colorBlocks[i].addEventListener("mousedown", (e) =>
     keepColor(e, colorBlocks[i], cellColors[i])
   );
+}
+
+// Undo Section
+
+let undoButton = document.getElementById('undoButton');
+undoButton.addEventListener("mousedown", (e) => {
+  if(undoLives.length && e.button === 0) {
+    updateUndoRedoArray(redoLives);
+
+    life = undoLives.pop();
+    refreshLife(true);
+  }
+})
+
+// Redo Section
+
+let redoButton = document.getElementById('redoButton');
+redoButton.addEventListener("mousedown", (e) => {
+  if(redoLives.length && e.button === 0) {
+    updateUndoRedoArray(undoLives);
+
+    life = redoLives.pop();
+    refreshLife(true);
+  }
+})
+function updateUndoRedoArray(lives) {
+  let i = lives.length;
+
+  lives[i] = [];
+  
+  for (let x = 0; x < life.length; x++) {
+    lives[i][x] = [];
+    for (let y = 0; y < life[x].length; y++) {
+      lives[i][x][y] = new Cell(life[x][y].isAlive, life[x][y].wasAlive, life[x][y].color);
+    }
+  }
+
+  if (lives.length > 10)
+    lives.shift();
+}
+

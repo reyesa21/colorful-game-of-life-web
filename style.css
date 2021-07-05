@@ -15,7 +15,7 @@ html, body {
     top: 5%;
     left: 88%;
     width: 10vmin;
-    height: 50vmin;
+    height: 60vmin;
     -webkit-user-select: none;
        -moz-user-select: none;
         -ms-user-select: none;
@@ -25,7 +25,6 @@ html, body {
 .button {
     font-size: 3vmin;
     text-align:center;
-    text-indent: -15%;
     background: bisque;
     color: black;
     box-shadow: 0vmin 0vmin 0vmin 0.2vmin black inset;
@@ -61,6 +60,31 @@ html, body {
 #speedButton {
     margin-top: 41vmin;
 }
+
+#undoButton{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-top: 49vmin;
+    width: 1vmin;
+    writing-mode: sideways-lr;
+    border-radius: 0;
+    border-top-left-radius: 3vmin;
+    border-bottom-left-radius: 3vmin;
+}
+
+#redoButton{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-top: 49vmin;
+    margin-left: 5vmin;
+    width: 0.5vmin;
+    writing-mode:vertical-rl;
+    border-radius: 0;
+    border-top-right-radius: 3vmin;
+    border-bottom-right-radius: 3vmin;
+}
 #colorSelector{
     height: 120px;
     width: 240px;
@@ -73,6 +97,7 @@ html, body {
     z-index: 2;
     border-radius: 20px;
 }
+
 
 .color{
     height: 40px;
