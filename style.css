@@ -3,7 +3,8 @@ html, body {
     padding: 0 !important;
     background-color: wheat;
     font-family: 'Londrina Solid', cursive;
-
+    cursor: auto;
+    cursor: url(pencil.cur), auto;
 }
 
 #key {

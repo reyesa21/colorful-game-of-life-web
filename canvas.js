@@ -44,11 +44,10 @@ class BlockPainter {
 
 document.body.style.overflow = "hidden"; // toggled when changing size
 
-let sizeMultiplier = 1.0;
 
 let /** @type {HTMLElement} */ canvas = document.getElementById("draw");
-canvas.width = window.innerWidth * sizeMultiplier;
-canvas.height = window.innerHeight * sizeMultiplier;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 let /** @type {HTMLElement} */ clear = document.getElementById("clear");
 let /** @type {Boolean} */ clearing = false;
@@ -56,11 +55,11 @@ let /** @type {Boolean} */ paused = true;
 
 const /** @type {Number} */ SCALE = 2;
 const /** @type {Number} */ PSIZE = 10 * SCALE;
+const /** @type {String} */ hoverColor = "#B3CAF5";
 
 let /**@type {Number} */ width = Math.trunc(canvas.width / PSIZE);
 let /**@type {Number} */ height = Math.trunc(canvas.height / PSIZE);
 
-let /** @type {String} */ hoverColor = "#B3CAF5";
 
 let /**@type {Cell[][]} */ life = [];
 
@@ -379,34 +378,33 @@ resize.addEventListener("mousedown", (e) => {
     case -1:
       resizeCounter++;
       resize.innerHTML = "1.0x";
-      sizeMultiplier = 1.0;
+      resizer();
       document.body.style.overflow = "hidden";
       break;
     case 0:
       resizeCounter++;
       resize.innerHTML = "1.2x";
-      sizeMultiplier = 1.2;
+      resizer(1.2);
       document.body.style.overflow = "visible";
 
       break;
     case 1:
       resizeCounter++;
       resize.innerHTML = "1.5x";
-      sizeMultiplier = 1.5;
+      resizer(1.5);
       break;
     case 2:
       resizeCounter++;
       resize.innerHTML = "1.8x";
-      sizeMultiplier = 1.8;
+      resizer(1.8);
       break;
     case 3:
       resizeCounter = -1;
       resize.innerHTML = "2.0x";
-      sizeMultiplier = 2.0;
+      resizer(2.0);
       break;
   }
 
-  resizer();
 });
 
 // Handles clear button, which removes all living cells.
@@ -433,11 +431,11 @@ pause.addEventListener("mousedown", (e) => {
   }
 });
 
-window.onresize = resizer;
+window.onresize = resizer(1);
 /**
  * Resizes canvas and adjusts life and prevLife arrays.
  */
-function resizer() {
+function resizer(sizeMultiplier) {
   canvas.width = window.innerWidth * sizeMultiplier;
   canvas.height = window.innerHeight * sizeMultiplier;
 
