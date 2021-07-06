@@ -422,7 +422,8 @@ let /** @type {HTMLElement} */ pause = document.getElementById("pause");
 pause.addEventListener("mousedown", (e) => {
   if (paused) {
     updateUndoRedoArray(undoLives);
-
+    redoLives = [];
+    
     pause.innerHTML = "Pause";
     paused = false;
     live();
