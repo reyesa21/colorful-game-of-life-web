@@ -1,28 +1,5 @@
 "use strict";
 
-class Cell {
-  /**
-   *
-   * @param {Boolean} isAlive
-   * @param {Boolean} wasAlive
-   */
-  constructor(isAlive, wasAlive, color = "wheat") {
-    /**@type {Boolean} */
-    this.isAlive = isAlive;
-    /**@type {Boolean} */
-    this.wasAlive = wasAlive;
-    /**@type {string} */
-    this.color = color;
-  }
-}
-
-class CellColor {
-  constructor(color) {
-    this.color = color;
-    this.kept = false;
-  }
-}
-
 class BlockPainter {
   constructor(ctx, sz, clr) {
     this.context = ctx;
@@ -41,6 +18,30 @@ class BlockPainter {
   }
 }
 
+class CellColor {
+  constructor(color) {
+    this.color = color;
+    this.kept = false;
+  }
+}
+
+let cellColors = [
+  new CellColor("#F10891"),
+  new CellColor("#B00B69"),
+  new CellColor("#F0F0FA"),
+  new CellColor("#FAAAEE"),
+  new CellColor("#E0DCAA"),
+  new CellColor("#523445"),
+  new CellColor("#323231"),
+  new CellColor("#311222"),
+  new CellColor("#666666"),
+  new CellColor("#555555"),
+];
+
+
+
+
+
 let /** @type {HTMLElement} */ canvas = document.getElementById("draw");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -49,7 +50,7 @@ let /** @type {HTMLElement} */ clear = document.getElementById("clear");
 
 let /** @type {Boolean} */ clearing = false;
 let /** @type {Boolean} */ paused = true;
-let /** @type {Boolean} */ mouseDown = false;
+let /** @type {Boolean} */ drawing = false;
 let /** @type {Boolean} */ erasing = false;
 
 const /** @type {Number} */ SCALE = 2;
@@ -65,23 +66,44 @@ let /**@type {Cell[][]} */ life = [];
 let /**@type {Cell[][][]} */ undoLives = [];
 let /**@type {Cell[][][]} */ redoLives = [];
 
-let cellColors = [
-  new CellColor("#F10891"),
-  new CellColor("#B00B69"),
-  new CellColor("#F0F0FA"),
-  new CellColor("#FAAAEE"),
-  new CellColor("#E0DCAA"),
-  new CellColor("#523445"),
-  new CellColor("#323231"),
-  new CellColor("#311222"),
-  new CellColor("#666666"),
-  new CellColor("#555555"),
-];
-
 let ctx = canvas.getContext("2d");
 
 let blockPainter = new BlockPainter(ctx, PSIZE, "wheat");
 
+class Cell {
+  /**
+   *
+   * @param {Boolean} isAlive
+   * @param {Boolean} wasAlive
+   */
+  constructor(isAlive, wasAlive, cIndex = 10) {
+    /**@type {Boolean} */
+    this.isAlive = isAlive;
+    /**@type {Boolean} */
+    this.wasAlive = wasAlive;
+    /**@type {Number} */
+    this.colorIndex = cIndex;
+    
+  }
+
+  getCellColor(){
+    if(this.colorIndex == 10)
+      return blockPainter.defaultColor;
+    else if(this.colorIndex < 0 || this.colorIndex > 9){
+      return null;
+    }
+      return cellColors[this.colorIndex].color;
+  }
+
+  setCellColor(color){
+      if(typeof(color) === 'number' && color >= 0 && color < cellColors.length)
+        this.colorIndex = color;
+      else if(typeof(color) === 'string')
+        this.colorIndex = cellColors.findIndex((e) => e.color == color);
+      if(color === 'wheat')
+        this.colorIndex = 10;
+      }
+}
 /**
  * Returns random integer between 0 and number given.
  * @param {Number} max
@@ -95,7 +117,7 @@ let blockPainter = new BlockPainter(ctx, PSIZE, "wheat");
  * Returns random color from a set of ten.
  * @returns {String} Hexadecimal color code.
  */
- function getColor() {
+ function getRandomColor() {
   return cellColors[getRandomInt(10)].color;
 }
 
@@ -114,25 +136,23 @@ window.onload = () => {
     life[getRandomInt(width)][getRandomInt(height)].isAlive = true;
   }
 
-  refreshLife();
+  refreshLife(false);
 };
 
 // refreshes cells by comparising life array with previous life array
-function refreshLife(refreshAll) {
+function refreshLife(refreshAll, keepColor = false) {
   for (let i = 0; i < width; i++)
     for (let j = 0; j < height; j++) {
       if (life[i][j].isAlive != life[i][j].wasAlive || refreshAll) {
         if (life[i][j].isAlive == true) {
-          life[i][j].color =
-            life[i][j].color != blockPainter.defaultColor
-              ? life[i][j].color
-              : getColor();
-
-          blockPainter.paintBlock(i, j, life[i][j].color);
+          if(life[i][j].getCellColor() == blockPainter.defaultColor && !keepColor){
+            life[i][j].setCellColor(getRandomInt(10));
+          }
+          blockPainter.paintBlock(i, j, life[i][j].getCellColor());
         } 
         
         else {
-          life[i][j].color = blockPainter.defaultColor;
+          life[i][j].setCellColor(blockPainter.defaultColor);
           blockPainter.paintBlock(i, j);
         }
       }
@@ -198,20 +218,20 @@ function live() {
   }
 
   if (!clearing) refreshLife(false);
-  if (!mouseDown && !paused && !erasing) setTimeout(live, speedOfLife);
+  if (!drawing && !paused && !erasing) setTimeout(live, speedOfLife);
 }
 
 // Event handles drawing.
 canvas.addEventListener("mousedown", (e) => {
   if (e.button == 0) {
-    mouseDown = true;
+    drawing = true;
 
     let x = Math.trunc(e.offsetX / PSIZE);
     let y = Math.trunc(e.offsetY / PSIZE);
 
     if (life[x] != undefined) {
-      life[x][y].color = getColor();
-      blockPainter.paintBlock(x, y, life[x][y].color);
+      life[x][y].setCellColor(getRandomInt(10));
+      blockPainter.paintBlock(x, y, life[x][y].getCellColor());
       life[x][y].isAlive = true;
     }
   }
@@ -223,7 +243,7 @@ canvas.addEventListener("mousedown", (e) => {
     let y = Math.trunc(e.offsetY / PSIZE);
 
     if (life[x] != undefined) {
-      life[x][y].color = blockPainter.defaultColor;
+      life[x][y].setCellColor(blockPainter.defaultColor);
       blockPainter.paintBlock(x, y);
       life[x][y].isAlive = false;
     }
@@ -263,46 +283,52 @@ let pastY = -1;
 canvas.addEventListener("mousemove", (e) => {
   let x = Math.trunc(e.offsetX / PSIZE);
   let y = Math.trunc(e.offsetY / PSIZE);
+  
+  if(x == pastX && y == pastY)
+    return;
+    
   if (life[x] != undefined) {
-    if (pastX != -1)
-      if (pastX != x || pastY != y) {
-        blockPainter.paintBlock(
-          pastX,
-          pastY,
-          life[pastX][pastY].isAlive
-            ? life[pastX][pastY].color
-            : blockPainter.defaultColor
-        );
-      }
+    if (pastX != -1 && (pastX != x || pastY != y))
+    {
+      blockPainter.paintBlock(
+        pastX,
+        pastY,
+        life[pastX][pastY].isAlive // if cell is alive
+          ? life[pastX][pastY].getCellColor() // repace hovercolor with cell's color
+          : blockPainter.defaultColor // else replace it with default color
+      );
+    }
 
-    if (mouseDown) {
+    if (drawing) {
       if (life[x] != undefined) {
-        life[x][y].color = getColor();
-        blockPainter.paintBlock(x, y, life[x][y].color);
+        life[x][y].setCellColor(getRandomInt(10));
+        blockPainter.paintBlock(x, y, life[x][y].getCellColor());
         life[x][y].isAlive = true;
       }
     } else if (erasing) {
       if (life[x] != undefined) {
-        life[x][y].color = blockPainter.defaultColor;
-        blockPainter.paintBlock(x, y, life[x][y].color);
+        life[x][y].setCellColor(blockPainter.defaultColor);
+        blockPainter.paintBlock(x, y, life[x][y].getCellColor());
 
         life[x][y].isAlive = false;
       }
     } else {
       if (life[x] != undefined) {
-        pastX = x;
-        pastY = y;
+
         blockPainter.paintBlock(x, y, hoverColor);
       }
     }
+
+    pastX = x;
+    pastY = y;
   }
 });
 
 
 // Event to handle ending drawing.
 canvas.addEventListener("mouseup", (e) => {
-  if (mouseDown) {
-    mouseDown = false;
+  if (drawing) {
+    drawing = false;
     live();
   }
 
@@ -332,13 +358,13 @@ if (canvas.addEventListener) {
 canvas.addEventListener("touchstart", (e) => {
   let offset = getOffsetPosition(e, canvas);
 
-  mouseDown = true;
+  drawing = true;
 
   let x = Math.trunc(offset.x / PSIZE);
   let y = Math.trunc(offset.y / PSIZE);
 
   if (life[x][y].isAlive != undefined) {
-    life[x][y].color = getColor();
+    life[x][y].setCellColor(getRandomInt(10));
     blockPainter.paintBlock(x, y);
     life[x][y].isAlive = true;
   }
@@ -346,24 +372,22 @@ canvas.addEventListener("touchstart", (e) => {
 
 // Event to handle moving with touch.
 canvas.addEventListener("touchmove", (e) => {
-  if (mouseDown) {
+  if (drawing) {
     let offset = getOffsetPosition(e, canvas);
 
     let x = Math.trunc(offset.x / PSIZE);
     let y = Math.trunc(offset.y / PSIZE);
 
-    life[x][y].color = getColor();
-    blockPainter.paintBlock(x, y, life[x][y].color);
-    life[x][y].isAlive = true;
-
+    life[x][y].setCellColor(getRandomInt(10));
+    blockPainter.paintBlock(x, y, life[x][y].getCellColor());
     life[x][y].isAlive = true;
   }
 });
 
 // Event to handle ending drawing.
 canvas.addEventListener("touchend", (e) => {
-  if (mouseDown) {
-    mouseDown = false;
+  if (drawing) {
+    drawing = false;
     live();
   }
 });
@@ -423,7 +447,7 @@ pause.addEventListener("mousedown", (e) => {
   if (paused) {
     updateUndoRedoArray(undoLives);
     redoLives = [];
-    
+
     pause.innerHTML = "Pause";
     paused = false;
     live();
@@ -528,26 +552,13 @@ function setColorPalette() {
 randomColorButton.addEventListener("mousedown", (e) => {
   if (e.button === 0) {
     document.getElementById("colorSelector").classList.toggle("shake-vertical");
-    window.setTimeout(() => {
+
+    //set timeout for css shaking to end
+    window.setTimeout(() => { 
       document
         .getElementById("colorSelector")
         .classList.toggle("shake-vertical");
     }, 250);
-    let hsv = {
-      h: getRandomInt(360),
-      s: Math.max(0.8, Math.random()),
-      v: Math.max(0.8, Math.random()),
-    };
-
-    let randomColors = Please.make_scheme(hsv, {
-      scheme_type: "analogous",
-      format: "hex",
-    });
-
-    Array.prototype.push.apply(
-      randomColors,
-      Please.make_scheme(hsv, { scheme_type: "double", format: "hex" })
-    );
 
     for (let i = 0; i < cellColors.length; i++) {
       cellColors[i].color = cellColors[i].kept
@@ -556,8 +567,7 @@ randomColorButton.addEventListener("mousedown", (e) => {
     }
 
     setColorPalette();
-
-    refreshLife(true);
+    refreshLife(true, false);
   }
 });
 
@@ -608,7 +618,7 @@ undoButton.addEventListener("mousedown", (e) => {
     updateUndoRedoArray(redoLives);
 
     life = undoLives.pop();
-    refreshLife(true);
+    refreshLife(true, true);
   }
 })
 
@@ -620,9 +630,10 @@ redoButton.addEventListener("mousedown", (e) => {
     updateUndoRedoArray(undoLives);
 
     life = redoLives.pop();
-    refreshLife(true);
+    refreshLife(true, true);
   }
 })
+
 function updateUndoRedoArray(lives) {
   let i = lives.length;
 
@@ -631,7 +642,7 @@ function updateUndoRedoArray(lives) {
   for (let x = 0; x < life.length; x++) {
     lives[i][x] = [];
     for (let y = 0; y < life[x].length; y++) {
-      lives[i][x][y] = new Cell(life[x][y].isAlive, life[x][y].wasAlive, life[x][y].color);
+      lives[i][x][y] = new Cell(life[x][y].isAlive, life[x][y].wasAlive, life[x][y].colorIndex);
     }
   }
 
