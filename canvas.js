@@ -220,6 +220,8 @@ function live() {
 // Event handles drawing.
 canvas.addEventListener("mousedown", (e) => {
   if (e.button == 0) {
+    redoLives = [];
+    updateUndoRedoArray(undoLives);
     drawing = true;
 
     let x = Math.trunc(e.offsetX / PSIZE);
@@ -232,7 +234,7 @@ canvas.addEventListener("mousedown", (e) => {
     }
   }
 
-  if (e.button == 2) {
+  else if (e.button == 2) {
     erasing = true;
 
     let x = Math.trunc(e.offsetX / PSIZE);
@@ -429,6 +431,8 @@ resize.addEventListener("mousedown", (e) => {
 // Handles clear button, which removes all living cells.
 clear.addEventListener("mousedown", (e) => {
   clearing = true;
+  updateUndoRedoArray(undoLives);
+  redoLives = [];
   for (let i = 0; i < width; i++) {
     for (let j = 0; j < height; j++) life[i][j].isAlive = false;
   }
@@ -611,12 +615,22 @@ for (let i = 0; i < colorBlocks.length; i++){
 
 let undoButton = document.getElementById('undoButton');
 undoButton.addEventListener("mousedown", (e) => {
+
   if(undoLives.length && e.button === 0) {
+    paused = true;
+    pause.innerHTML = "Start";
     updateUndoRedoArray(redoLives);
 
-    life = undoLives.pop();
-    refreshLife(true, true);
+    let tempLife = undoLives.pop();
+   
+    for (let i = 0; i < width + 2; i++) {
+      if (i < tempLife.length)
+        for (let j = 0; j < height + 2; j++)
+          life[i][j] =
+            tempLife[i][j] ? tempLife[i][j] : life[i][j];
+    }
   }
+  refreshLife(true, true);
 })
 
 // Redo Section
@@ -624,9 +638,18 @@ undoButton.addEventListener("mousedown", (e) => {
 let redoButton = document.getElementById('redoButton');
 redoButton.addEventListener("mousedown", (e) => {
   if(redoLives.length && e.button === 0) {
+    paused = true;
+    pause.innerHTML = "Start";
     updateUndoRedoArray(undoLives);
 
-    life = redoLives.pop();
+    let tempLife = redoLives.pop();
+
+    for (let i = 0; i < width + 2; i++) {
+      if (i < tempLife.length)
+        for (let j = 0; j < height + 2; j++)
+          life[i][j] =
+            tempLife[i][j] ? tempLife[i][j] : life[i][j];
+    }
     refreshLife(true, true);
   }
 })
@@ -635,7 +658,7 @@ function updateUndoRedoArray(lives) {
   let i = lives.length;
 
   lives[i] = [];
-  
+
   for (let x = 0; x < life.length; x++) {
     lives[i][x] = [];
     for (let y = 0; y < life[x].length; y++) {
