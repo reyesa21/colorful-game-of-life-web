@@ -38,10 +38,6 @@ let cellColors = [
   new CellColor("#555555"),
 ];
 
-
-
-
-
 let /** @type {HTMLElement} */ canvas = document.getElementById("draw");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -100,7 +96,7 @@ class Cell {
         this.colorIndex = color;
       else if(typeof(color) === 'string')
         this.colorIndex = cellColors.findIndex((e) => e.color == color);
-      if(color === 'wheat')
+      if(color === blockPainter.defaultColor)
         this.colorIndex = 10;
       }
 }
@@ -457,14 +453,15 @@ pause.addEventListener("mousedown", (e) => {
   }
 });
 
-window.onresize = resizer(1);
+window.addEventListener('resize', e => resizer());
+
 /**
  * Resizes canvas and adjusts life and prevLife arrays.
  */
-function resizer(sizeMultiplier) {
+function resizer(sizeMultiplier = 1) {
   canvas.width = window.innerWidth * sizeMultiplier;
   canvas.height = window.innerHeight * sizeMultiplier;
-
+  
   width = Math.max(Math.trunc(canvas.width / PSIZE), width);
   height = Math.max(Math.trunc(canvas.height / PSIZE), height);
 
