@@ -13,7 +13,7 @@ html, body {
     border-radius: 3vmin;
     position: fixed;
     top: 5%;
-    left: 88%;
+    left: 90%;
     width: 10vmin;
     height: 60vmin;
     -webkit-user-select: none;
@@ -67,7 +67,9 @@ html, body {
     align-items:center;
     margin-top: 49vmin;
     width: 1vmin;
-    writing-mode: sideways-lr;
+    -webkit-writing-mode: vertical-lr;
+        -ms-writing-mode: sideways-lr;
+            writing-mode: vertical-lr;
     border-radius: 0;
     border-top-left-radius: 3vmin;
     border-bottom-left-radius: 3vmin;
@@ -80,7 +82,9 @@ html, body {
     margin-top: 49vmin;
     margin-left: 5vmin;
     width: 0.5vmin;
-    writing-mode:vertical-rl;
+    -webkit-writing-mode:vertical-rl;
+        -ms-writing-mode:tb-rl;
+            writing-mode:vertical-rl;
     border-radius: 0;
     border-top-right-radius: 3vmin;
     border-bottom-right-radius: 3vmin;
@@ -242,6 +246,36 @@ html, body {
       z-index: 1;
   }
 
-.fa-lock{
+.fas{
     color:white;
 }
+
+.box{
+    background: #302c2c;
+    border-radius: 20px;
+    position: fixed;
+    top: 90%;
+    height: 80px;
+    width: 80px;
+    left: 10%;
+    text-align: center;
+    line-height: 55px !important;
+    opacity: 50%;
+    cursor: pointer;
+}
+
+.box:hover{
+    opacity: 100;
+}
+#rightDirectionButton{
+    transform: translateX(105%);
+}
+
+#upDirectionButton{
+    transform: translateY(-105%);
+}
+
+#leftDirectionButton{
+    transform: translateX(-105%);
+}
+

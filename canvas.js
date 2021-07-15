@@ -9,12 +9,15 @@ class BlockPainter {
 
   paintBlock(x, y, blockColor = this.defaultColor) {
     this.context.fillStyle = blockColor;
+    if(x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight){
     this.context.fillRect(
       x * this.blockSize,
       y * this.blockSize,
       this.blockSize,
       this.blockSize
     );
+    }
+
   }
 }
 
@@ -37,6 +40,7 @@ let cellColors = [
   new CellColor("#666666"),
   new CellColor("#555555"),
 ];
+
 
 let /** @type {HTMLElement} */ canvas = document.getElementById("draw");
 canvas.width = window.innerWidth;
@@ -139,7 +143,7 @@ window.onload = () => {
 function refreshLife(refreshAll, keepColor = false) {
   for (let i = 0; i < width; i++)
     for (let j = 0; j < height; j++) {
-      if (life[i][j].isAlive != life[i][j].wasAlive || refreshAll) {
+      if (refreshAll || life[i][j].isAlive != life[i][j].wasAlive) {
         if (life[i][j].isAlive == true) {
           if(life[i][j].getCellColor() == blockPainter.defaultColor && !keepColor){
             life[i][j].setCellColor(getRandomInt(10));
@@ -281,18 +285,16 @@ let pastY = -1;
 canvas.addEventListener("mousemove", (e) => {
   let x = Math.trunc(e.offsetX / PSIZE);
   let y = Math.trunc(e.offsetY / PSIZE);
-  
-  if(x == pastX && y == pastY)
-    return;
-    
+
+  if (x == pastX && y == pastY) return;
+
   if (life[x] != undefined) {
-    if (pastX != -1 && (pastX != x || pastY != y))
-    {
+    if (pastX != -1 && (pastX != x || pastY != y)) {
       blockPainter.paintBlock(
         pastX,
         pastY,
         life[pastX][pastY].isAlive // if cell is alive
-          ? life[pastX][pastY].getCellColor() // repace hovercolor with cell's color
+          ? life[pastX][pastY].getCellColor() // replace hovercolor with cell's color
           : blockPainter.defaultColor // else replace it with default color
       );
     }
@@ -312,7 +314,6 @@ canvas.addEventListener("mousemove", (e) => {
       }
     } else {
       if (life[x] != undefined) {
-
         blockPainter.paintBlock(x, y, hoverColor);
       }
     }
@@ -463,8 +464,8 @@ window.addEventListener('resize', e => resizer());
  * Resizes canvas and adjusts life and prevLife arrays.
  */
 function resizer(sizeMultiplier = 1) {
-  canvas.width = window.innerWidth * sizeMultiplier;
-  canvas.height = window.innerHeight * sizeMultiplier;
+  canvas.width = Math.max(window.innerWidth, canvas.width);
+  canvas.height = Math.max(window.innerHeight, canvas.height);
   
   width = Math.max(Math.trunc(canvas.width / PSIZE), width);
   height = Math.max(Math.trunc(canvas.height / PSIZE), height);
@@ -600,7 +601,7 @@ function keepColor(e, colorBlock, colorCell) {
     colorBlock.classList.toggle("fas");
     colorBlock.classList.toggle("fa-lock");
     colorBlock.classList.toggle("fa-2x");
-
+  
     colorCell.kept = !colorCell.kept;
   }
 }
@@ -669,4 +670,113 @@ function updateUndoRedoArray(lives) {
   if (lives.length > 10)
     lives.shift();
 }
+let xMax = 0;
+let yMax = 0;
+let lifeOffsetX = 0;
+let lifeOffsetY = 0;
+function holdScroll(btn, start, x, y) {
+  let repeating = false;
 
+let repeat = () => {
+    if (repeating) {
+      let mult = 10;
+      xMax = Math.max(lifeOffsetX, xMax);
+      yMax = Math.max(lifeOffsetY, yMax);
+      lifeOffsetX = Math.max(lifeOffsetX + x, 0);
+      lifeOffsetY = Math.max(lifeOffsetY + y, 0);
+      
+
+      
+      if(lifeOffsetX > xMax || lifeOffsetY > yMax){
+      if(x > 0){
+        canvas.width += x*mult;
+        width = Math.max(Math.trunc(canvas.width / PSIZE), width);
+      }
+      if(y > 0){
+        canvas.height += y*mult;
+        height = Math.max(Math.trunc(canvas.height / PSIZE), height);
+      }
+
+
+
+      if(!life[width+1] || !life[width+1][height+1]){
+      for (let i = 0; i < width + Math.max((x*mult*10), 0); i++) {
+        if (i >= life.length) life[i] = [];
+
+        for (let j = life[i].length; j < height + Math.max((y*mult*10), 0); j++)
+          life[i][j] = new Cell(false, false);
+      }
+    }
+      refreshLife(false);
+  }
+      window.scrollTo(window.scrollX+(x*mult), window.scrollY+(y*mult));
+      requestAnimationFrame(repeat);
+    }
+
+  }
+
+  if(btn != null){
+  btn.addEventListener('mousedown', e => {
+    repeating = true;
+    repeat();
+
+  });
+
+  btn.addEventListener('mouseleave', e =>{
+    repeating = false;
+  });
+
+  btn.addEventListener('mouseup', e => {
+    repeating = false;
+  });
+  }
+
+  else if(btn == null){
+    let usingKeyboard = true;
+
+    document.addEventListener('keydown', e => {
+        usingKeyboard = true;
+
+        if(e.code === 'KeyW'){
+          y = -1;
+        }
+        else if (e.code === 'KeyS'){
+          y = 1;
+        }
+        else if(e.code === 'KeyA'){
+          x = -1;
+        }
+        else if (e.code === 'KeyD'){
+          x = 1;
+        }
+        else
+          return;
+          
+        if(!repeating){
+        repeating = true;
+        repeat();
+        usingKeyboard = false;
+      }
+    })
+    
+    document.addEventListener('keyup', e => {
+      if(e.code === 'KeyS' || e.code === 'KeyW')
+        y = 0; 
+      if(e.code === 'KeyA' || e.code === 'KeyD')
+        x = 0;
+      if(!usingKeyboard)
+        repeating = false;
+    })
+  }
+};
+
+// Scrolling section
+let upDirectionButton = document.getElementById('upDirectionButton');
+let downDirectionButton = document.getElementById('downDirectionButton');
+let leftDirectionButton = document.getElementById('leftDirectionButton');
+let rightDirectionButton = document.getElementById('rightDirectionButton');
+holdScroll(upDirectionButton, 10, 0, -1);
+holdScroll(downDirectionButton, 10, 0, 1);
+holdScroll(leftDirectionButton, 10, -1, 0);
+holdScroll(rightDirectionButton, 10, 1, 0);
+holdScroll(null, 10, 0, 0);
