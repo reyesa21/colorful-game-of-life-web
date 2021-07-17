@@ -1,10 +1,16 @@
+html{
+    background-color:rgb(46, 41, 32);
+
+}
+
 html, body {
     margin: 0 !important;
     padding: 0 !important;
-    background-color: wheat;
     font-family: 'Londrina Solid', cursive;
     cursor: auto;
     cursor: url(pencil.cur), auto;
+    border-radius: 3vmin;
+
 }
 
 #key {
@@ -253,10 +259,12 @@ html, body {
 .box{
     background: #302c2c;
     border-radius: 20px;
+    border: 2px solid black;
+    border-bottom: 10px solid black;
     position: fixed;
-    top: 90%;
-    height: 80px;
-    width: 80px;
+    top: 85%;
+    height: 70px;
+    width: 79px;
     left: 10%;
     text-align: center;
     line-height: 55px !important;
@@ -264,9 +272,6 @@ html, body {
     cursor: pointer;
 }
 
-.box:hover{
-    opacity: 100;
-}
 #rightDirectionButton{
     transform: translateX(105%);
 }
@@ -279,3 +284,14 @@ html, body {
     transform: translateX(-105%);
 }
 
+.down-direction-button-clicked{
+    transform: translateY(15%);
+}
+
+.left-direction-button-clicked{
+    transform: translate(-105%, 15%) !important;
+}
+
+.right-direction-button-clicked{
+    transform: translate(105%, 15%) !important;
+}

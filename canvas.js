@@ -43,8 +43,8 @@ let cellColors = [
 
 
 let /** @type {HTMLElement} */ canvas = document.getElementById("draw");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = 2500;
+canvas.height = 2500;
 
 let /** @type {HTMLElement} */ clear = document.getElementById("clear");
 
@@ -132,11 +132,11 @@ window.onload = () => {
   }
 
   //randomly turn on cells
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 1000; i++) {
     life[getRandomInt(width)][getRandomInt(height)].isAlive = true;
   }
 
-  refreshLife(false);
+  refreshLife(true);
 };
 
 // refreshes cells by comparising life array with previous life array
@@ -391,44 +391,6 @@ canvas.addEventListener("touchend", (e) => {
   }
 });
 
-let /** @type {HTMLElement} */ resize = document.getElementById("resize");
-let /** @type {Number} */ resizeCounter = 0;
-
-// Handles resize button which resizes the canvas in a cyclical manner.
-resize.addEventListener("mousedown", (e) => {
-  switch (resizeCounter) {
-    case -1:
-      resizeCounter++;
-      resize.innerHTML = "1.0x";
-      resizer(1);
-      document.body.style.overflow = "hidden";
-      break;
-    case 0:
-      resizeCounter++;
-      resize.innerHTML = "1.2x";
-      resizer(1.2);
-      document.body.style.overflow = "visible";
-
-      break;
-    case 1:
-      resizeCounter++;
-      resize.innerHTML = "1.5x";
-      resizer(1.5);
-      break;
-    case 2:
-      resizeCounter++;
-      resize.innerHTML = "1.8x";
-      resizer(1.8);
-      break;
-    case 3:
-      resizeCounter = -1;
-      resize.innerHTML = "2.0x";
-      resizer(2.0);
-      break;
-  }
-
-});
-
 // Handles clear button, which removes all living cells.
 clear.addEventListener("mousedown", (e) => {
   clearing = true;
@@ -444,43 +406,20 @@ clear.addEventListener("mousedown", (e) => {
 
 let /** @type {HTMLElement} */ pause = document.getElementById("pause");
 
-pause.addEventListener("mousedown", (e) => {
+pause.addEventListener("mousedown", (e) => pauseFunction());
+function pauseFunction(){
   if (paused) {
-    updateUndoRedoArray(undoLives);
-    redoLives = [];
+  updateUndoRedoArray(undoLives);
+  redoLives = [];
 
-    pause.innerHTML = "Pause";
-    paused = false;
-    live();
-  } else {
-    paused = true;
-    pause.innerHTML = "Start";
-  }
-});
-
-window.addEventListener('resize', e => resizer());
-
-/**
- * Resizes canvas and adjusts life and prevLife arrays.
- */
-function resizer(sizeMultiplier = 1) {
-  canvas.width = Math.max(window.innerWidth, canvas.width);
-  canvas.height = Math.max(window.innerHeight, canvas.height);
-  
-  width = Math.max(Math.trunc(canvas.width / PSIZE), width);
-  height = Math.max(Math.trunc(canvas.height / PSIZE), height);
-
-  for (let i = 0; i < width + 2; i++) {
-    if (i >= life.length) life[i] = [];
-
-    for (let j = 0; j < height + 2; j++)
-      life[i][j] =
-        life[i][j] != undefined ? life[i][j] : new Cell(false, false);
-  }
-
-  refreshLife(clearing);
+  pause.innerHTML = "Pause";
+  paused = false;
+  live();
+} else {
+  paused = true;
+  pause.innerHTML = "Start";
 }
-
+}
 let /** @type {HTMLElement} */ menu = document.getElementById("key");
 
 // Toggles menu with 'c'.
@@ -492,6 +431,10 @@ document.addEventListener("keydown", (e) => {
     } else {
       menu.className = "";
     }
+  }
+
+  else if(e.code === "Space"){
+    pauseFunction();
   }
 });
 
@@ -676,57 +619,57 @@ let lifeOffsetX = 0;
 let lifeOffsetY = 0;
 function holdScroll(btn, start, x, y) {
   let repeating = false;
+  let mult = 10;
 
 let repeat = () => {
     if (repeating) {
-      let mult = 10;
-      xMax = Math.max(lifeOffsetX, xMax);
-      yMax = Math.max(lifeOffsetY, yMax);
-      lifeOffsetX = Math.max(lifeOffsetX + x, 0);
-      lifeOffsetY = Math.max(lifeOffsetY + y, 0);
-      
-
-      
-      if(lifeOffsetX > xMax || lifeOffsetY > yMax){
-      if(x > 0){
-        canvas.width += x*mult;
-        width = Math.max(Math.trunc(canvas.width / PSIZE), width);
-      }
-      if(y > 0){
-        canvas.height += y*mult;
-        height = Math.max(Math.trunc(canvas.height / PSIZE), height);
-      }
-
-
-
-      if(!life[width+1] || !life[width+1][height+1]){
-      for (let i = 0; i < width + Math.max((x*mult*10), 0); i++) {
-        if (i >= life.length) life[i] = [];
-
-        for (let j = life[i].length; j < height + Math.max((y*mult*10), 0); j++)
-          life[i][j] = new Cell(false, false);
-      }
-    }
-      refreshLife(false);
-  }
       window.scrollTo(window.scrollX+(x*mult), window.scrollY+(y*mult));
       requestAnimationFrame(repeat);
     }
-
   }
 
   if(btn != null){
   btn.addEventListener('mousedown', e => {
+    btn.style.opacity = 1;
+    btn.style.borderBottom = 0;
+    
+    if(btn === rightDirectionButton)
+      btn.classList.add("right-direction-button-clicked");
+    else if(btn === leftDirectionButton)
+      btn.classList.add("left-direction-button-clicked");
+    else if(btn === downDirectionButton)
+      btn.classList.add('down-direction-button-clicked');
+
     repeating = true;
     repeat();
 
   });
 
   btn.addEventListener('mouseleave', e =>{
-    repeating = false;
+    btn.style.opacity = 0.5;
+    btn.style.borderBottom = "10px solid black";
+   
+    if(btn === rightDirectionButton)
+      btn.classList.remove("right-direction-button-clicked");
+    else if(btn === leftDirectionButton)
+      btn.classList.remove("left-direction-button-clicked");
+    else if(btn === downDirectionButton)
+      btn.classList.remove('down-direction-button-clicked');
+   
+      repeating = false;
   });
 
   btn.addEventListener('mouseup', e => {
+    btn.style.opacity = 0.5;
+    btn.style.borderBottom = "10px solid black";
+
+    if(btn === rightDirectionButton)
+    btn.classList.remove("right-direction-button-clicked");
+  else if(btn === leftDirectionButton)
+    btn.classList.remove("left-direction-button-clicked");
+  else if(btn === downDirectionButton)
+    btn.classList.remove('down-direction-button-clicked');
+
     repeating = false;
   });
   }
@@ -737,17 +680,28 @@ let repeat = () => {
     document.addEventListener('keydown', e => {
         usingKeyboard = true;
 
-        if(e.code === 'KeyW'){
+        if(e.code === 'KeyW' || e.code === 'ArrowUp'){
           y = -1;
+          upDirectionButton.style.opacity = 1;
+          upDirectionButton.style.borderBottom = 0;
         }
-        else if (e.code === 'KeyS'){
+        else if (e.code === 'KeyS'|| e.code === 'ArrowDown'){
           y = 1;
+          downDirectionButton.style.opacity = 1;
+          downDirectionButton.style.borderBottom = 0;
+          downDirectionButton.classList.add("down-direction-button-clicked");
         }
-        else if(e.code === 'KeyA'){
+        else if(e.code === 'KeyA' || e.code === 'ArrowLeft'){
           x = -1;
+          leftDirectionButton.style.opacity = 1;
+          leftDirectionButton.style.borderBottom = 0;
+          leftDirectionButton.classList.add("left-direction-button-clicked");
         }
-        else if (e.code === 'KeyD'){
+        else if (e.code === 'KeyD' || e.code === 'ArrowRight'){
           x = 1;
+          rightDirectionButton.style.opacity = 1;
+          rightDirectionButton.style.borderBottom = 0;
+          rightDirectionButton.classList.add("right-direction-button-clicked");
         }
         else
           return;
@@ -760,10 +714,29 @@ let repeat = () => {
     })
     
     document.addEventListener('keyup', e => {
-      if(e.code === 'KeyS' || e.code === 'KeyW')
+      if(e.code === 'KeyS' || e.code === 'ArrowDown'){
         y = 0; 
-      if(e.code === 'KeyA' || e.code === 'KeyD')
+        downDirectionButton.style.opacity = 0.5;
+        downDirectionButton.style.borderBottom = "10px solid black";
+        downDirectionButton.classList.remove("down-direction-button-clicked");
+        }
+      if(e.code === 'KeyW' || e.code === 'ArrowUp'){
+        upDirectionButton.style.opacity = 0.5;
+        upDirectionButton.style.borderBottom = "10px solid black";
+        y = 0; 
+      }
+      if(e.code === 'KeyA' || e.code === 'ArrowLeft'){
+        leftDirectionButton.style.opacity = 0.5;
+        leftDirectionButton.style.borderBottom = "10px solid black";
+        leftDirectionButton.classList.remove("left-direction-button-clicked");
         x = 0;
+      } 
+      if(e.code === 'KeyD' || e.code === 'ArrowRight'){
+        rightDirectionButton.style.opacity = 0.5;
+        rightDirectionButton.style.borderBottom = "10px solid black";
+        rightDirectionButton.classList.remove("right-direction-button-clicked");
+        x = 0;
+      }
       if(!usingKeyboard)
         repeating = false;
     })
