@@ -1,65 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="homepage-style-sheet.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/csstwqo?family=Londrina+Solid:wght@100&display=swap" rel="stylesheet"> 
+    <script src="https://kit.fontawesome.com/cecf45ccb0.js" crossorigin="anonymous"></script>        
 
-    <head>
-        <link rel="stylesheet" type="text/css" href="https://csshake.surge.sh/csshake.min.css">
-        <link href="style.css" rel="stylesheet">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@100&display=swap" rel="stylesheet"> 
-        <script src="https://kit.fontawesome.com/cecf45ccb0.js" crossorigin="anonymous"></script>        
-        <title>
-            Colorful Game of Life!
-        </title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-  
-    <body style="overflow: hidden;">
-        <div id="overlay" class="disappear"></div> 
-       
-        <canvas id="draw"></canvas>
-        
-        <legend id="key">
-            <div id="clear" class="button">Clear</div>
-            <div id ="pause" class="button">Start</div>
-            <a id = "save" class="button">Save</a>
-            <div id ="colorButton" class="button">Color</div>
-            <div id ="speedButton" class="button">Crawl</div>
-            <div id="undoButton" class="button">Undo</div>
-            <div id="redoButton" class="button">Redo</div>
-        </legend>
-
-        <div id ="colorSelector" class="disappear">
-            <div class = "color" id ="color0"></div>
-            <div class="color" id ="color1"></div>
-            <div class="color" id ="color2"></div>
-            <div class="color" id ="color3"></div>
-            <div class="color" id ="color4"></div>
-            <div class="color" id ="color5"></div>
-            <div class="color" id ="color6"></div>
-            <div class="color" id ="color7"></div>
-            <div class="color" id ="color8"></div>
-            <div class="color" id ="color9"></div>
-            <div class="button" id="randomColorButton">Randomize</div>
-
+    <title>Document</title>
+</head>
+<body>
+    <nav id="topNavMenu" ><i class="fas fa-user fa-2x"></i></nav>
+    <nav id="sideNavMenu"></nav>
+    <div id = "creationPage">
+        <a href="painter.html"> <div class = "one painter-box" id = "boxOne"> 
+             <div class="painter-box__title-box">My First Creation! </div>
+        </div></a>
+        <div class = "one painter-box" id = "boxTwo"> 
+            <div class="painter-box__title-box">My Second Creation!</div>
         </div>
-
-        <section id="scrollControls">
-            <div id="parentLayout">
-                <div class="box fas fa-angle-left fa-4x" id="leftDirectionButton"></div>
-                <div class="box fas fa-angle-down fa-4x" id="downDirectionButton"> </div>
-                <div class="box fas fa-angle-right fa-4x" id="rightDirectionButton"></div>
-                <div class="box fas fa-angle-up fa-4x" id="upDirectionButton"></div>
-
-                </div>
-            </div>
-        </section>
-        <footer id="tip">Press C to toggle the menu!</footer>
-    </body>
-  
-    <script src="please.js"></script>
-    <script src="canvas.js"></script>
-  
-    </html>
-
-    
+        <div class = "one painter-box" id = "boxThree"> 
+            <div class="painter-box__title-box">My Third Creation!</div>
+        </div>
+        <div class = "one painter-box" id = "boxFour"> 
+            <div class="painter-box__title-box">My Fourth Creation!</div>
+        </div>
+        <div class = "one painter-box" id = "boxFive"> 
+            <div class="painter-box__title-box">My Fifth Creation!</div>
+        </div>
+        <div class = "two painter-box" id = "boxOne"> 
+            <div class="painter-box__title-box">My First Creation!</div>
+        </div>
+        <div class = "two painter-box" id = "boxTwo"> 
+            <div class="painter-box__title-box">My Second Creation!</div>
+        </div>
+        <div class = "two painter-box" id = "boxThree"> 
+            <div class="painter-box__title-box">My Third Creation!</div>
+        </div>
+        <div class = "two painter-box" id = "boxFour"> 
+            <div class="painter-box__title-box">My Fourth Creation!</div>
+        </div>
+        <div class = "two painter-box" id = "boxFive"> 
+            <div class="painter-box__title-box">My Fifth Creation!</div>
+        </div>
+        <div class = "three painter-box" id = "boxOne"> 
+            <div class="painter-box__title-box">My First Creation!</div>
+        </div>
+        <div class = "three painter-box" id = "boxTwo"> 
+            <div class="painter-box__title-box">My Second Creation!</div>
+        </div>
+        <div class = "three painter-box" id = "boxThree"> 
+            <div class="painter-box__title-box">My Third Creation!</div>
+        </div>
+        <div class = "three painter-box" id = "boxFour"> 
+            <div class="painter-box__title-box">My Fourth Creation!</div>
+        </div>
+        <div class = "three painter-box" id = "boxFive"> 
+            <div class="painter-box__title-box">My Fifth Creation!</div>
+        </div>
+    </div>
+</body>
+<script src="frontpage.js"></script>
+</html>

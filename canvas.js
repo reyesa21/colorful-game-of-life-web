@@ -422,22 +422,6 @@ function pauseFunction(){
 }
 let /** @type {HTMLElement} */ menu = document.getElementById("key");
 
-// Toggles menu with 'c'.
-document.addEventListener("keydown", (e) => {
-  if (e.code === "KeyC") {
-    document.getElementById("tip").className = "disappear";
-    if (menu.className != "disappear") {
-      menu.className = "disappear";
-    } else {
-      menu.className = "";
-    }
-  }
-
-  else if(e.code === "Space"){
-    pauseFunction();
-  }
-});
-
 let save = document.getElementById("save");
 
 save.addEventListener("mousedown", (e) => {
@@ -753,3 +737,29 @@ holdScroll(downDirectionButton, 10, 0, 1);
 holdScroll(leftDirectionButton, 10, -1, 0);
 holdScroll(rightDirectionButton, 10, 1, 0);
 holdScroll(null, 10, 0, 0);
+
+// Key Presses
+
+document.addEventListener("keydown", (e) => {
+  if (e.code === "KeyC") {
+    document.getElementById("tip").className = "disappear";
+    if (menu.className != "disappear") {
+      menu.className = "disappear";
+      upDirectionButton.classList.add("disappear");
+      leftDirectionButton.classList.add("disappear");
+      rightDirectionButton.classList.add("disappear");
+      downDirectionButton.classList.add("disappear");
+
+    } else {
+      menu.className = "";
+      upDirectionButton.classList.remove("disappear");
+      leftDirectionButton.classList.remove("disappear");
+      rightDirectionButton.classList.remove("disappear");
+      downDirectionButton.classList.remove("disappear");
+    }
+  }
+
+  else if(e.code === "Space"){
+    pauseFunction();
+  }
+});
